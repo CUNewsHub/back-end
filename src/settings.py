@@ -12,18 +12,18 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+import secret_data
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '7^^e_ll9hu^akk+uy7xjsxnrwg*kq^*2pmmoc+v%5^d&d@!y$e'
+SECRET_KEY = secret_data.SECRET_KEY
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = secret_data.DEBUG
 
 ALLOWED_HOSTS = []
 
@@ -37,6 +37,8 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    'newshub',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -52,10 +54,24 @@ MIDDLEWARE_CLASSES = (
 
 ROOT_URLCONF = 'src.urls'
 
+STATIC_URL = '/static/'
+MEDIA_URL = '/media/'
+
+if DEBUG:
+    FRONTEND_BASE = os.path.abspath(os.path.join(BASE_DIR, '..', 'front-end'))
+
+    STATICFILES_DIRS = (
+        os.path.abspath(os.path.join(FRONTEND_BASE, 'static')),
+    )
+
+    MEDIA_ROOT = os.path.abspath(os.path.join(FRONTEND_BASE, 'media'))
+
+    TEMPLATE_D = os.path.abspath(os.path.join(FRONTEND_BASE, 'templates'))
+    
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [TEMPLATE_D],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -76,8 +92,12 @@ WSGI_APPLICATION = 'src.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'newshub',
+        'USER': secret_data.MYSQL_USER,
+        'PASSWORD': secret_data.MYSQL_PASSWORD,
+        'HOST': 'localhost',
+        'PORT': '3306'
     }
 }
 
