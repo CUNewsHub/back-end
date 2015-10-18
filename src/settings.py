@@ -93,7 +93,7 @@ WSGI_APPLICATION = 'src.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'newshub',
+        'NAME': secret_data.MYSQL_DB,
         'USER': secret_data.MYSQL_USER,
         'PASSWORD': secret_data.MYSQL_PASSWORD,
         'HOST': 'localhost',
