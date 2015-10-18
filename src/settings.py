@@ -61,7 +61,7 @@ if DEBUG:
     if secret_data.DEVELOPMENT:
         FRONTEND_BASE = os.path.abspath(os.path.join(BASE_DIR, '..', 'front-end'))
     else:
-        FRONTEND_BASE = '/home/newshub/webapps/newshub_static'
+        FRONTEND_BASE = '/home/newshub/webapps/newshub_static/current'
 
     STATICFILES_DIRS = (
         os.path.abspath(os.path.join(FRONTEND_BASE, 'static')),
