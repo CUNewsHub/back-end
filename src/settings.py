@@ -58,7 +58,10 @@ STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 
 if DEBUG:
-    FRONTEND_BASE = os.path.abspath(os.path.join(BASE_DIR, '..', 'front-end'))
+    if secret_data.DEVELOPMENT:
+        FRONTEND_BASE = os.path.abspath(os.path.join(BASE_DIR, '..', 'front-end'))
+    else:
+        FRONTEND_BASE = '/home/newshub/webapps/newshub_static'
 
     STATICFILES_DIRS = (
         os.path.abspath(os.path.join(FRONTEND_BASE, 'static')),
@@ -67,7 +70,7 @@ if DEBUG:
     MEDIA_ROOT = os.path.abspath(os.path.join(FRONTEND_BASE, 'media'))
 
     TEMPLATE_D = os.path.abspath(os.path.join(FRONTEND_BASE, 'templates'))
-    
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
