@@ -60,12 +60,15 @@ MEDIA_URL = '/media/'
 if DEBUG:
     if secret_data.DEVELOPMENT:
         FRONTEND_BASE = os.path.abspath(os.path.join(BASE_DIR, '..', 'front-end'))
+
+        STATICFILES_DIRS = (
+            os.path.abspath(os.path.join(FRONTEND_BASE, 'static')),
+        )
+
     else:
         FRONTEND_BASE = '/home/newshub/webapps/newshub_static/current'
 
-    STATICFILES_DIRS = (
-        os.path.abspath(os.path.join(FRONTEND_BASE, 'static')),
-    )
+        STATIC_ROOT = '/home/newshub/webapps/newshub_static/current/static'
 
     MEDIA_ROOT = os.path.abspath(os.path.join(FRONTEND_BASE, 'media'))
 
