@@ -27,6 +27,8 @@ SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {
     'fields': 'id,name,email', 
 }
 
+SOCIAL_AUTH_USERNAME_IS_FULL_EMAIL = True
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Quick-start development settings - unsuitable for production
