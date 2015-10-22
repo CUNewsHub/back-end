@@ -75,8 +75,6 @@ LOGIN_URL = '/login/'
 
 ROOT_URLCONF = 'src.urls'
 
-STATIC_URL = '/static/'
-MEDIA_URL = '/media/'
 
 if DEBUG:
     if secret_data.DEVELOPMENT:
@@ -86,12 +84,16 @@ if DEBUG:
             os.path.abspath(os.path.join(FRONTEND_BASE, 'static')),
         )
 
+        STATIC_URL = '/static/'
+        MEDIA_URL = '/media/'
     else:
         FRONTEND_BASE = '/home/newshub/webapps/newshub_static/current'
 
-        STATIC_ROOT = '/home/newshub/webapps/newshub_static/current/static'
+        STATIC_URL = '/static/current/static/'
+        MEDIA_URL = '/static/current/media/'
 
     MEDIA_ROOT = os.path.abspath(os.path.join(FRONTEND_BASE, 'media'))
+
 
     TEMPLATE_D = os.path.abspath(os.path.join(FRONTEND_BASE, 'templates'))
 
