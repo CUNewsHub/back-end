@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 class Profile(models.Model):
     user = models.OneToOneField(User)
     picture = models.ImageField(upload_to='profile_pictures/%Y/%m/%d')
-    about = models.TextField()
+    about = models.TextField(blank=True, null=True)
 
 
 class Article(models.Model):
@@ -13,6 +13,7 @@ class Article(models.Model):
     title = models.CharField(max_length=255)
     headline = models.TextField()
     content = models.TextField()
+    published = models.BooleanField(default=False)
 
 
 class Category(models.Model):

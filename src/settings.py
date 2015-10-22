@@ -13,7 +13,19 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 import secret_data
+
+import sys
+reload(sys)
+sys.setdefaultencoding("utf-8")
+
 from secret_data import *
+from pipeline import SOCIAL_AUTH_PIPELINE
+
+
+SOCIAL_AUTH_PIPELINE = SOCIAL_AUTH_PIPELINE
+SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {
+    'fields': 'id,name,email', 
+}
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -27,7 +39,6 @@ SECRET_KEY = secret_data.SECRET_KEY
 DEBUG = secret_data.DEBUG
 
 ALLOWED_HOSTS = []
-
 
 # Application definition
 
@@ -56,6 +67,9 @@ MIDDLEWARE_CLASSES = (
 
 SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/'
 SOCIAL_AUTH_LOGIN_URL = '/login/'
+
+SOCIAL_AUTH_FACEBOOK_SCOPE = ['email']
+
 LOGIN_URL = '/login/'
 
 
