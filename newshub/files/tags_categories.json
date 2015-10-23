@@ -1,0 +1,13 @@
+{
+	"categories":[
+		{
+			"name": "sport",
+			"tags": [
+				"football",
+				"soccer",
+				"rugby",
+				"hockey"
+			]
+		}
+	]
+}

@@ -28,8 +28,10 @@ SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {
 }
 
 SOCIAL_AUTH_USERNAME_IS_FULL_EMAIL = True
+SOCIAL_AUTH_SLUGIFY_USERNAMES = True
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+TAGS_FILE = 'tags_categories.json'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
