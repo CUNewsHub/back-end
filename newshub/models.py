@@ -8,19 +8,28 @@ class Profile(models.Model):
     about = models.TextField(blank=True, null=True)
 
 
+class Category(models.Model):
+    name = models.CharField(max_length=63)
+
+    def __unicode__(self):
+        return self.name
+
+    class Meta:
+        verbose_name_plural = u'Categories'
+
+
+class Tag(models.Model):
+    name = models.CharField(max_length=63)
+    category = models.ForeignKey(Category)
+
+    def __unicode__(self):
+        return self.name
+
+
 class Article(models.Model):
     author = models.ForeignKey(User)
     title = models.CharField(max_length=255)
     headline = models.TextField()
     content = models.TextField()
     published = models.BooleanField(default=False)
-
-
-class Category(models.Model):
-    name = models.CharField(max_length=63)
-
-
-class Tag(models.Model):
-    article = models.ManyToManyField(Article)
-    name = models.CharField(max_length=63)
-    category = models.ForeignKey(Category)
+    tags = models.ManyToManyField(Tag)
