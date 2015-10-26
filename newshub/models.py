@@ -6,6 +6,7 @@ class Profile(models.Model):
     user = models.OneToOneField(User)
     picture = models.ImageField(upload_to='profile_pictures/%Y/%m/%d')
     about = models.TextField(blank=True, null=True)
+    crsid = models.CharField(blank=True, null=True, max_length=7)
 
 
 class Category(models.Model):
@@ -33,3 +34,5 @@ class Article(models.Model):
     content = models.TextField()
     published = models.BooleanField(default=False)
     tags = models.ManyToManyField(Tag)
+    time_uploaded = models.DateTimeField(auto_now_add=True)
+    time_changed = models.DateTimeField(auto_now=True)
