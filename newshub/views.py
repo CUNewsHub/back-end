@@ -28,6 +28,7 @@ def logout(request):
     return HttpResponseRedirect(reverse('newshub:home'))
 
 
+@login_required
 def profile(request, pk=None):
     if pk is None:
         return render(request, 'newshub/profile.html', {'user': request.user})
@@ -96,11 +97,8 @@ def edit_article(request, pk=None):
 
 
 @login_required
-def author_articles(request, pk=None):
-    if pk is None or pk == request.user.ok:
-        articles = Article.objects.filter(author=request.user)
-    else:
-        articles = Article.objects.filter(author__pk=pk)
+def author_articles(request):
+    articles = Article.objects.filter(author__pk=request.user.pk)
 
     return render(
         request,

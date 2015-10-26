@@ -23,10 +23,6 @@ urlpatterns = [
     url(
         r'^my/articles/$',
         'newshub.views.author_articles',
-        name='my_articles'),
-    url(
-        r'^my/articles/(?P<pk>[0-9]+)/$',
-        'newshub.views.author_articles',
-        name='author_articles')
+        name='my_articles')
 
 ]
