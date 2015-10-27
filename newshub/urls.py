@@ -20,9 +20,9 @@ urlpatterns = [
         r'^edit/article/(?P<pk>[0-9]+)/$',
         'newshub.views.edit_article',
         name='edit_article'),
-    url(
-        r'^my/articles/$',
-        'newshub.views.author_articles',
-        name='my_articles')
+    # url(
+    #     r'^my/articles/$',
+    #     'newshub.views.author_articles',
+    #     name='my_articles')
 
 ]

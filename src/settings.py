@@ -11,15 +11,15 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 """
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+from secret_data import *
+from pipeline import SOCIAL_AUTH_PIPELINE
+
 import os
 import secret_data
 
 import sys
 reload(sys)
 sys.setdefaultencoding("utf-8")
-
-from secret_data import *
-from pipeline import SOCIAL_AUTH_PIPELINE
 
 
 SOCIAL_AUTH_PIPELINE = SOCIAL_AUTH_PIPELINE
@@ -55,6 +55,9 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'social.apps.django_app.default',
 
+    # 3rd party apps
+    'tinymce',
+
     'newshub',
 )
 
@@ -82,7 +85,8 @@ ROOT_URLCONF = 'src.urls'
 
 if DEBUG:
     if secret_data.DEVELOPMENT:
-        FRONTEND_BASE = os.path.abspath(os.path.join(BASE_DIR, '..', 'front-end'))
+        FRONTEND_BASE = os.path.abspath(os.path.join(
+            BASE_DIR, '..', 'front-end'))
 
         STATICFILES_DIRS = (
             os.path.abspath(os.path.join(FRONTEND_BASE, 'static')),
@@ -90,16 +94,30 @@ if DEBUG:
 
         STATIC_URL = '/static/'
         MEDIA_URL = '/media/'
+        STATIC_ROOT = os.path.abspath(os.path.join(
+            FRONTEND_BASE, 'static-only'))
+        MEDIA_ROOT = os.path.abspath(os.path.join(FRONTEND_BASE, 'media'))
+
     else:
         FRONTEND_BASE = '/home/newshub/webapps/newshub_static/current'
 
         STATIC_URL = '/static/current/static/'
         MEDIA_URL = '/static/current/media/'
 
-    MEDIA_ROOT = os.path.abspath(os.path.join(FRONTEND_BASE, 'media'))
+        STATIC_ROOT = os.path.abspath(os.path.join(FRONTEND_BASE, 'static'))
 
 
-    TEMPLATE_D = os.path.abspath(os.path.join(FRONTEND_BASE, 'templates'))
+# TINYMCE CONFIG
+TINYMCE_JS_URL = os.path.join(STATIC_URL, "tiny_mce/tiny_mce.js")
+TINYMCE_JS_ROOT = os.path.join(STATIC_ROOT, "tiny_mce")
+TINYMCE_DEFAULT_CONFIG = {
+    'theme': 'advanced',
+    'theme_advanced_resizing': 'true',
+    'width': '600'
+}
+
+
+TEMPLATE_D = os.path.abspath(os.path.join(FRONTEND_BASE, 'templates'))
 
 TEMPLATES = [
     {
