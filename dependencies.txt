@@ -1,0 +1,5 @@
+django==1.8.5
+MySQL
+Pillow
+python-social-auth
+django-tinymce==2.0.5
