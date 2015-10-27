@@ -17,6 +17,7 @@ from django.conf.urls import include, url
 from django.contrib import admin
 from django.conf import settings
 from django.conf.urls.static import static
+from .secret_data import DEVELOPMENT
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
@@ -26,7 +27,7 @@ urlpatterns = [
 
 ]
 
-if settings.DEBUG:
+if settings.DEBUG and DEVELOPMENT:
     urlpatterns += static(
         settings.STATIC_URL, document_root=settings.STATIC_ROOT)
     urlpatterns += static(
