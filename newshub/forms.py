@@ -1,7 +1,12 @@
 from django import forms
 from .models import Article
-from tinymce.widgets import TinyMCE
+from redactor.widgets import RedactorEditor
+from django_select2.forms import ModelSelect2TagWidget
 
+class TagWidget(ModelSelect2TagWidget):
+    search_fields = [
+        'name__icontains'
+        ]
 
 class NewArticleForm(forms.ModelForm):
     published = forms.BooleanField(
@@ -12,5 +17,8 @@ class NewArticleForm(forms.ModelForm):
         model = Article
         exclude = ['author']
         widgets = {
-            'content': TinyMCE()
+            'content': RedactorEditor(
+                allow_image_upload=False,
+                allow_file_upload=False),
+            'tags': TagWidget
         }

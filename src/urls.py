@@ -24,6 +24,9 @@ urlpatterns = [
     url('', include('social.apps.django_app.urls', namespace='social')),
     url('', include('newshub.urls', namespace='newshub')),
     url(r'^tinymce/', include('tinymce.urls')),
+    url(r'^redactor/', include('redactor.urls')),
+    url(r'^select2/', include('django_select2.urls')),
+
 
 ]
 

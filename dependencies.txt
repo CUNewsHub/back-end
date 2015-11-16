@@ -3,3 +3,6 @@ MySQL
 Pillow
 python-social-auth
 django-tinymce==2.0.5
+django-fontawesome
+django-wysiwyg-redactor
+django-widget-tweaks

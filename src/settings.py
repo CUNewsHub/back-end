@@ -57,6 +57,10 @@ INSTALLED_APPS = (
 
     # 3rd party apps
     'tinymce',
+    'redactor',
+    'fontawesome',
+    'widget_tweaks',
+    'django_select2',
 
     'newshub',
 )
@@ -79,9 +83,7 @@ SOCIAL_AUTH_FACEBOOK_SCOPE = ['email']
 
 LOGIN_URL = '/login/'
 
-
 ROOT_URLCONF = 'src.urls'
-
 
 if DEBUG:
     if secret_data.DEVELOPMENT:
