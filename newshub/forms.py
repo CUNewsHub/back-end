@@ -1,9 +1,9 @@
 from django import forms
 from .models import Article
 from redactor.widgets import RedactorEditor
-from django_select2.forms import ModelSelect2TagWidget
+from django_select2.forms import ModelSelect2MultipleWidget
 
-class TagWidget(ModelSelect2TagWidget):
+class TagWidget(ModelSelect2MultipleWidget):
     search_fields = [
         'name__icontains'
         ]
