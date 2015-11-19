@@ -20,6 +20,10 @@ urlpatterns = [
         r'^edit/article/(?P<pk>[0-9]+)/$',
         'newshub.views.edit_article',
         name='edit_article'),
+    url(
+        r'^action/(?P<action_type>follow|endorse|like)/$',
+        'newshub.views.action',
+        name='action')
     # url(
     #     r'^my/articles/$',
     #     'newshub.views.author_articles',

@@ -3,19 +3,17 @@ from .models import Article
 from redactor.widgets import RedactorEditor
 from django_select2.forms import ModelSelect2MultipleWidget
 
+
 class TagWidget(ModelSelect2MultipleWidget):
     search_fields = [
         'name__icontains'
         ]
 
-class NewArticleForm(forms.ModelForm):
-    published = forms.BooleanField(
-        label='Publish?',
-        required=False)
 
+class NewArticleForm(forms.ModelForm):
     class Meta:
         model = Article
-        exclude = ['author']
+        exclude = ['author', 'likes', 'published']
         widgets = {
             'content': RedactorEditor(
                 allow_image_upload=False,

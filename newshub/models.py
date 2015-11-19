@@ -9,6 +9,28 @@ class Profile(models.Model):
     crsid = models.CharField(blank=True, null=True, max_length=7)
 
 
+class Author(models.Model):
+    user = models.OneToOneField(User)
+    endorsed_by = models.ManyToManyField(
+        User, through='Endorsement',
+        related_name='endorsed_author', blank=True,
+        null=True)
+    followed_by = models.ManyToManyField(
+        User, through='Follow',
+        related_name='followed_author',
+        blank=True, null=True)
+
+
+class Endorsement(models.Model):
+    author = models.ForeignKey(Author)
+    endorsed_by = models.ForeignKey(User)
+
+
+class Follow(models.Model):
+    author = models.ForeignKey(Author)
+    followed_by = models.ForeignKey(User)
+
+
 class Category(models.Model):
     name = models.CharField(max_length=63)
 
@@ -28,7 +50,7 @@ class Tag(models.Model):
 
 
 class Article(models.Model):
-    author = models.ForeignKey(User)
+    author = models.ForeignKey(Author)
     title = models.CharField(max_length=255)
     headline = models.TextField()
     content = models.TextField()
@@ -36,3 +58,5 @@ class Article(models.Model):
     tags = models.ManyToManyField(Tag)
     time_uploaded = models.DateTimeField(auto_now_add=True)
     time_changed = models.DateTimeField(auto_now=True)
+    likes = models.ManyToManyField(
+        User, related_name='liked_articles', blank=True, null=True)

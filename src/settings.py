@@ -36,7 +36,7 @@ TAGS_FILE = 'tags_categories.json'
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
+# SECURITY WARNING: keep the set key used in production secret!
 SECRET_KEY = secret_data.SECRET_KEY
 
 # SECURITY WARNING: don't run with debug turned on in production!

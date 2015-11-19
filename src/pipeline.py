@@ -35,6 +35,8 @@ SOCIAL_AUTH_PIPELINE = (
     # Save the email
     'newshub.pipeline.create_profile',
 
+    'newshub.pipeline.create_author',
+
     # Create the record that associated the social account with this user.
     'social.pipeline.social_auth.associate_user',
 

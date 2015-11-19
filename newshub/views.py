@@ -1,12 +1,12 @@
 from django.shortcuts import render, get_object_or_404
-from django.http import HttpResponseRedirect, HttpResponse, Http404
+from django.http import HttpResponseRedirect, Http404, JsonResponse
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout as auth_logout
 from django.contrib.auth.models import User
 
 from .forms import NewArticleForm
-from .models import Article
+from .models import Article, Author, Follow, Endorsement
 
 
 @login_required
@@ -46,11 +46,16 @@ def new_article(request):
         form = NewArticleForm(request.POST)
         if form.is_valid():
             article = form.save(commit=False)
-            article.author = request.user
+            article.author = request.user.author
             article.save()
+            form.save_m2m()
 
-            return HttpResponse("success")
-
+            if request.POST['action'] == 'Save':
+                return HttpResponseRedirect(
+                    reverse('newshub:edit_article', args=(article.pk,)))
+            elif request.POST['action'] == 'Publish':
+                return HttpResponseRedirect(
+                    reverse('newshub:view_article', args=(article.pk,)))
     else:
         form = NewArticleForm()
 
@@ -67,7 +72,7 @@ def view_article(request, pk=None):
     else:
         article = get_object_or_404(Article, pk=pk)
 
-        if not article.published and article.author != request.user:
+        if not article.published and article.author.user != request.user:
             raise Http404
 
         return render(
@@ -78,7 +83,7 @@ def view_article(request, pk=None):
 def edit_article(request, pk=None):
     article = get_object_or_404(Article, pk=pk)
 
-    if article.author != request.user:
+    if article.author.user != request.user:
         raise Http404
 
     form = NewArticleForm(request.POST or None, instance=article)
@@ -86,8 +91,12 @@ def edit_article(request, pk=None):
     if form.is_valid():
         form.save()
 
-        return HttpResponseRedirect(
-            reverse('newshub:edit_article', args=(pk,)))
+        if request.POST['action'] == 'Save':
+            return HttpResponseRedirect(
+                reverse('newshub:edit_article', args=(pk,)))
+        elif request.POST['action'] == 'Publish':
+            return HttpResponseRedirect(
+                reverse('newshub:view_article', args=(pk,)))
 
     else:
         return render(
@@ -98,9 +107,54 @@ def edit_article(request, pk=None):
 
 @login_required
 def author_articles(request):
-    articles = Article.objects.filter(author__pk=request.user.pk)
+    articles = Article.objects.filter(author__pk=request.user.author.pk)
 
     return render(
         request,
         'newshub/article/by_author.html',
         {'articles': articles})
+
+
+@login_required
+def action(request, action_type):
+    if not request.is_ajax():
+        raise Http404
+
+    if action_type == 'follow':
+        author = request.GET.get('author', None)
+
+        if author is None:
+            raise Http404
+
+        try:
+            author = Author.objects.get(pk=author)
+        except Author.DoesNotExists:
+            raise Http404
+
+        obj, created = Follow.objects.get_or_create(
+            author=author, followed_by=request.user)
+
+        if not created:
+            obj.delete()
+
+        return JsonResponse({'created': created})
+    elif action_type == 'endorse':
+        author = request.GET.get('author', None)
+
+        if author is None:
+            raise Http404
+
+        try:
+            author = Author.objects.get(pk=author)
+        except Author.DoesNotExists:
+            raise Http404
+
+        obj, created = Endorsement.objects.get_or_create(
+            author=author, endorsed_by=request.user)
+
+        if not created:
+            obj.delete()
+
+        return JsonResponse({'created': created})
+    elif action_type == 'like':
+        pass

@@ -1,6 +1,6 @@
 from requests import request, HTTPError
 from django.core.files.base import ContentFile
-from .models import Profile
+from .models import Profile, Author
 
 
 def create_profile(
@@ -21,3 +21,11 @@ def create_profile(
                 '{0}_social.jpg'.format(user.username),
                 ContentFile(response.content))
             profile.save()
+
+
+def create_author(
+    strategy, user, response, details,
+        is_new=False, *args, **kwargs):
+
+    if is_new:
+        Author.objects.create(user=user)
