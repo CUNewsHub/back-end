@@ -157,4 +157,22 @@ def action(request, action_type):
 
         return JsonResponse({'created': created})
     elif action_type == 'like':
-        pass
+        article = request.GET.get('article', None)
+
+        if article is None:
+            raise Http404
+
+        try:
+            article = Article.objects.get(pk=article)
+        except Article.DoesNotExists:
+            raise Http404
+
+        if request.user in article.likes.all():
+            article.likes.remove(request.user)
+            created = False
+        else:
+            article.likes.add(request.user)
+            article.save()
+            created = True
+
+        return JsonResponse({'created': created})
