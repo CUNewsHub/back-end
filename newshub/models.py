@@ -2,11 +2,23 @@ from django.db import models
 from django.contrib.auth.models import User
 
 
+class College(models.Model):
+    name = models.CharField(max_length=63)
+
+
+class Course(models.Model):
+    name = models.CharField(max_length=127)
+
+
 class Profile(models.Model):
     user = models.OneToOneField(User)
     picture = models.ImageField(upload_to='profile_pictures/%Y/%m/%d')
     about = models.TextField(blank=True, null=True)
     crsid = models.CharField(blank=True, null=True, max_length=7)
+    crsid_is_verified = models.BooleanField(default=False)
+    display_name = models.CharField(max_length=127)
+    college = models.ForeignKey(College, blank=True, null=True)
+    course = models.ForeignKey(Course, blank=True, null=True)
 
 
 class Author(models.Model):
@@ -19,6 +31,9 @@ class Author(models.Model):
         User, through='Follow',
         related_name='followed_author',
         blank=True, null=True)
+
+    def is_verified(self):
+        return self.user.profile.crsid_is_verified
 
 
 class Endorsement(models.Model):

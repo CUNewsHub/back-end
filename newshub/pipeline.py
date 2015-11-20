@@ -16,7 +16,8 @@ def create_profile(
         except HTTPError:
             pass
         else:
-            profile = Profile(user=user)
+            display_name = user.first_name+' '+user.last_name
+            profile = Profile(user=user, display_name=display_name)
             profile.picture.save(
                 '{0}_social.jpg'.format(user.username),
                 ContentFile(response.content))
