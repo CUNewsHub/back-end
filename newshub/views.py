@@ -54,6 +54,8 @@ def new_article(request):
                 return HttpResponseRedirect(
                     reverse('newshub:edit_article', args=(article.pk,)))
             elif request.POST['action'] == 'Publish':
+                article.published = True
+                article.save()
                 return HttpResponseRedirect(
                     reverse('newshub:view_article', args=(article.pk,)))
     else:
@@ -89,12 +91,14 @@ def edit_article(request, pk=None):
     form = NewArticleForm(request.POST or None, instance=article)
 
     if form.is_valid():
-        form.save()
+        article = form.save()
 
         if request.POST['action'] == 'Save':
             return HttpResponseRedirect(
                 reverse('newshub:edit_article', args=(pk,)))
         elif request.POST['action'] == 'Publish':
+            article.published = True
+            article.save()
             return HttpResponseRedirect(
                 reverse('newshub:view_article', args=(pk,)))
 
