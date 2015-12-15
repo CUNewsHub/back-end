@@ -16,8 +16,10 @@ class NewArticleForm(forms.ModelForm):
         exclude = ['author', 'likes', 'published']
         widgets = {
             'content': RedactorEditor(
-                allow_image_upload=False,
-                allow_file_upload=False),
+                redactor_options={'buttons': [
+                    'formatting', 'bold', 'italic', 'deleted',
+                    'list', 'link', 'horizontalrule', 'orderedlist',
+                    'unorderedlist']}),
             'tags': TagWidget
         }
 

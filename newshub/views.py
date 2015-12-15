@@ -73,7 +73,7 @@ def update_profile(request, pk):
         form.save()
 
         return HttpResponseRedirect(
-            reverse('newshub:profile') + '#profile-update')
+            reverse('newshub:profile'))
 
 # Articles
 
