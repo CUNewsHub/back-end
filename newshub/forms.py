@@ -1,5 +1,5 @@
 from django import forms
-from .models import Article
+from .models import Article, Profile, Comment
 from redactor.widgets import RedactorEditor
 from django_select2.forms import ModelSelect2MultipleWidget
 
@@ -20,3 +20,16 @@ class NewArticleForm(forms.ModelForm):
                 allow_file_upload=False),
             'tags': TagWidget
         }
+
+
+class ProfileForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        exclude = ['user', 'picture', 'crsid_is_verified']
+
+
+class CommentForm(forms.ModelForm):
+    class Meta:
+        exclude = ['made_by', 'made_time']
+        model = Comment
+        widgets = {'article': forms.HiddenInput()}

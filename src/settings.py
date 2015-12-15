@@ -32,6 +32,7 @@ SOCIAL_AUTH_SLUGIFY_USERNAMES = True
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TAGS_FILE = 'tags_categories.json'
+COLLEGES_SUBJECTS_FILE = 'colleges_subjects.json'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/

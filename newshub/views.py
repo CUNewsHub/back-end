@@ -1,19 +1,39 @@
 from django.shortcuts import render, get_object_or_404
-from django.http import HttpResponseRedirect, Http404, JsonResponse
+from django.http import HttpResponseRedirect, HttpResponse, Http404, JsonResponse
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout as auth_logout
 from django.contrib.auth.models import User
 
-from .forms import NewArticleForm
-from .models import Article, Author, Follow, Endorsement
+from .forms import NewArticleForm, ProfileForm, CommentForm
+from .models import Article, Author, Follow, Endorsement, Profile
+from .models import ViewedArticles
 
 
 @login_required
 def home(request):
     articles = Article.objects.filter(published=True)
 
-    return render(request, 'newshub/index.html', {'articles': articles})
+    return render(request, 'newshub/index.html',
+                  {'articles': articles, 'type': 'home'})
+
+
+@login_required
+def top_stories(request):
+    articles = Article.objects.filter(published=True)
+
+    return render(request, 'newshub/index.html',
+                  {'articles': articles, 'type': 'top-stories'})
+
+
+@login_required
+def history(request):
+    viewed_set = ViewedArticles.objects.filter(
+        user=request.user).order_by('-viewed_time')
+    articles = [x.article for x in viewed_set]
+
+    return render(request, 'newshub/index.html',
+                  {'articles': articles, 'type': 'history'})
 
 
 def login(request):
@@ -31,14 +51,32 @@ def logout(request):
 @login_required
 def profile(request, pk=None):
     if pk is None:
-        return render(request, 'newshub/profile.html', {'user': request.user})
+        profile_form = ProfileForm(instance=request.user.profile)
+        user = request.user
     else:
         user = get_object_or_404(User, pk=pk)
-        return render(
-            request, 'newshub/profile.html', {'user': user})
+        profile_form = ProfileForm(instance=user.profile)
 
+    return render(request, 'newshub/profile.html',
+                  {'user': user, 'profile_form': profile_form})
+
+
+@login_required
+def update_profile(request, pk):
+    profile = get_object_or_404(Profile, pk=pk)
+    if request.user != profile.user or request.method != 'POST':
+        raise Http404
+
+    form = ProfileForm(request.POST, instance=profile)
+
+    if form.is_valid():
+        form.save()
+
+        return HttpResponseRedirect(
+            reverse('newshub:profile') + '#profile-update')
 
 # Articles
+
 
 @login_required
 def new_article(request):
@@ -52,12 +90,14 @@ def new_article(request):
 
             if request.POST['action'] == 'Save':
                 return HttpResponseRedirect(
-                    reverse('newshub:edit_article', args=(article.pk,)))
+                    reverse('newshub:edit_article',
+                            args=('home', article.pk,)))
             elif request.POST['action'] == 'Publish':
                 article.published = True
                 article.save()
                 return HttpResponseRedirect(
-                    reverse('newshub:view_article', args=(article.pk,)))
+                    reverse('newshub:view_article',
+                            args=(article.pk,)))
     else:
         form = NewArticleForm()
 
@@ -68,7 +108,7 @@ def new_article(request):
 
 
 @login_required
-def view_article(request, pk=None):
+def view_article(request, action_type, pk=None):
     if pk is None:
         raise Http404
     else:
@@ -77,8 +117,17 @@ def view_article(request, pk=None):
         if not article.published and article.author.user != request.user:
             raise Http404
 
+        obj, created = ViewedArticles.objects.get_or_create(
+            user=request.user, article=article)
+
+        obj.save()
+
+        comment_form = CommentForm(initial={'article': article})
+
         return render(
-            request, 'newshub/article/view.html', {'article': article})
+            request, 'newshub/article/view.html',
+            {'article': article, 'action_type': action_type,
+             'comment_form': comment_form})
 
 
 @login_required
@@ -180,3 +229,21 @@ def action(request, action_type):
             created = True
 
         return JsonResponse({'created': created})
+
+
+@login_required
+def add_comment(request):
+    if request.is_ajax():
+        if request.method == 'POST':
+            comment_form = CommentForm(request.POST)
+            if comment_form.is_valid():
+                comment = comment_form.save(commit=False)
+                comment.made_by = request.user
+                comment.save()
+
+                return render(request, 'newshub/article/comment.html',
+                              {'comment': comment})
+        else:
+            raise Http404
+    else:
+        raise Http404

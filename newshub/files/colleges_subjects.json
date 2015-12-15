@@ -1,0 +1,12 @@
+{
+	"colleges":[
+		"Homerton",
+		"Trinity",
+		"Trinity Hall",
+		"Johns"
+	],
+	"subjects":[
+		"Computer Science",
+		"Mathematics"
+	]
+}
