@@ -102,6 +102,8 @@ class Article(models.Model):
     time_changed = models.DateTimeField(auto_now=True)
     likes = models.ManyToManyField(
         User, related_name='liked_articles', blank=True)
+    header_picture = models.ImageField(
+        upload_to='article_header_pictures/%Y/%m/%d')
 
 
 class ViewedArticles(models.Model):

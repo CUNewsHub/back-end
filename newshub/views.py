@@ -81,7 +81,7 @@ def update_profile(request, pk):
 @login_required
 def new_article(request):
     if request.method == 'POST':
-        form = NewArticleForm(request.POST)
+        form = NewArticleForm(request.POST, request.FILES)
         if form.is_valid():
             article = form.save(commit=False)
             article.author = request.user.author
@@ -97,7 +97,7 @@ def new_article(request):
                 article.save()
                 return HttpResponseRedirect(
                     reverse('newshub:view_article',
-                            args=(article.pk,)))
+                            args=('home', article.pk,)))
     else:
         form = NewArticleForm()
 
@@ -137,7 +137,10 @@ def edit_article(request, pk=None):
     if article.author.user != request.user:
         raise Http404
 
-    form = NewArticleForm(request.POST or None, instance=article)
+    form = NewArticleForm(
+        request.POST or None,
+        request.FILES or None,
+        instance=article)
 
     if form.is_valid():
         article = form.save()
@@ -149,7 +152,7 @@ def edit_article(request, pk=None):
             article.published = True
             article.save()
             return HttpResponseRedirect(
-                reverse('newshub:view_article', args=(pk,)))
+                reverse('newshub:view_article', args=('home', pk,)))
 
     else:
         return render(

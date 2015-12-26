@@ -62,6 +62,7 @@ INSTALLED_APPS = (
     'fontawesome',
     'widget_tweaks',
     'django_select2',
+    'sorl.thumbnail',
 
     'newshub',
 )

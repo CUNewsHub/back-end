@@ -7,3 +7,4 @@ django-fontawesome
 django-wysiwyg-redactor
 django-widget-tweaks
 django-select2
+sorl-thumbnail
