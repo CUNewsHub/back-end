@@ -32,7 +32,32 @@ urlpatterns = [
     url(
         r'^update/profile/(?P<pk>[0-9]+)/$',
         'newshub.views.update_profile',
-        name='update_profile')
+        name='update_profile'),
+    url(
+        r'^article/add/poll/$',
+        'newshub.views.article_add_poll',
+        name='article_add_poll'),
+    url(
+        r'^article/edit/poll/(?P<pk>[0-9]+)/$',
+        'newshub.views.article_edit_poll',
+        name='article_edit_poll'),
+    url(
+        r'^article/delete/poll/(?P<pk>[0-9]+)/$',
+        'newshub.views.article_delete_poll',
+        name='article_delete_poll'),
+    url(
+        r'^article/poll/add/choice/$',
+        'newshub.views.article_poll_add_choice',
+        name='article_poll_add_choice'),
+    url(
+        r'^article/delete/poll/choice/(?P<pk>[0-9]+)/$',
+        'newshub.views.article_delete_poll_choice',
+        name='article_delete_poll_choice'),
+    url(
+        r'^article/poll/(?P<pk>[0-9]+)/vote/$',
+        'newshub.views.article_poll_vote',
+        name='article_poll_vote'),
+
     # url(
     #     r'^my/articles/$',
     #     'newshub.views.author_articles',

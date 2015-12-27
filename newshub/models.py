@@ -105,6 +105,9 @@ class Article(models.Model):
     header_picture = models.ImageField(
         upload_to='article_header_pictures/%Y/%m/%d')
 
+    def __unicode__(self):
+        return self.title
+
 
 class ViewedArticles(models.Model):
     user = models.ForeignKey(User)
@@ -120,3 +123,24 @@ class Comment(models.Model):
 
     class Meta:
         ordering = ['-made_time']
+
+
+class Poll(models.Model):
+    title = models.CharField(max_length=255, verbose_name='Poll title')
+    voted = models.ManyToManyField(User)
+    article = models.OneToOneField(Article, null=True, blank=True)
+
+    def __unicode__(self):
+        return self.title
+
+
+class Choice(models.Model):
+    poll = models.ForeignKey(Poll)
+    choice_text = models.CharField(max_length=255)
+    votes = models.IntegerField(default=0)
+
+    def __unicode__(self):
+        return self.choice_text
+
+    class Meta:
+        ordering = ['choice_text']

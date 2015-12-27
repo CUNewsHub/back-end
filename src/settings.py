@@ -24,7 +24,7 @@ sys.setdefaultencoding("utf-8")
 
 SOCIAL_AUTH_PIPELINE = SOCIAL_AUTH_PIPELINE
 SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {
-    'fields': 'id,name,email', 
+    'fields': 'id,name,email',
 }
 
 SOCIAL_AUTH_USERNAME_IS_FULL_EMAIL = True

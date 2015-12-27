@@ -1,5 +1,5 @@
 from django import forms
-from .models import Article, Profile, Comment
+from .models import Article, Profile, Comment, Poll, Choice
 from redactor.widgets import RedactorEditor
 from django_select2.forms import ModelSelect2MultipleWidget
 
@@ -35,3 +35,17 @@ class CommentForm(forms.ModelForm):
         exclude = ['made_by', 'made_time']
         model = Comment
         widgets = {'article': forms.HiddenInput()}
+
+
+class PollForm(forms.ModelForm):
+    class Meta:
+        model = Poll
+        exclude = ['voted']
+        widgets = {'article': forms.HiddenInput()}
+
+
+class ChoiceForm(forms.ModelForm):
+    class Meta:
+        model = Choice
+        fields = ['poll', 'choice_text']
+        widgets = {'poll': forms.HiddenInput()}

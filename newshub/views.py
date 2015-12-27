@@ -5,9 +5,10 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout as auth_logout
 from django.contrib.auth.models import User
 
-from .forms import NewArticleForm, ProfileForm, CommentForm
-from .models import Article, Author, Follow, Endorsement, Profile
-from .models import ViewedArticles
+from .forms import NewArticleForm, ProfileForm, CommentForm, PollForm
+from .forms import ChoiceForm
+from .models import Article, Author, Follow, Endorsement, Profile, Poll
+from .models import ViewedArticles, Choice
 
 
 @login_required
@@ -158,7 +159,9 @@ def edit_article(request, pk=None):
         return render(
             request,
             'newshub/article/add_edit.html',
-            {'form': form, 'add': False})
+            {'form': form,
+             'poll_form': PollForm(initial={'article': article}),
+             'add': False})
 
 
 @login_required
@@ -250,3 +253,109 @@ def add_comment(request):
             raise Http404
     else:
         raise Http404
+
+
+@login_required
+def article_add_poll(request):
+    poll_form = PollForm(request.POST)
+    if poll_form.is_valid():
+        if poll_form.cleaned_data['article'].author.user != request.user:
+            raise Http404
+
+        poll = poll_form.save()
+        return HttpResponseRedirect(
+            reverse('newshub:article_edit_poll', args=(poll.pk,)))
+    else:
+        # TODO: error handling
+        pass
+
+
+def article_delete_poll(request, pk):
+    poll = get_object_or_404(Poll, pk=pk)
+
+    article = poll.article
+
+    if poll.article.author.user != request.user:
+        raise Http404
+
+    poll.delete()
+
+    return HttpResponseRedirect(
+        reverse('newshub:edit_article', args=(article.pk,)))
+
+
+@login_required
+def article_edit_poll(request, pk):
+    poll = get_object_or_404(Poll, pk=pk)
+
+    if poll.article.author.user != request.user:
+        raise Http404
+
+    return render(request, 'newshub/article/poll/edit_poll.html',
+                  {'poll': poll, 'form': ChoiceForm(initial={'poll': poll})})
+
+
+@login_required
+def article_poll_add_choice(request):
+    if request.method != 'POST':
+        raise Http404
+
+    choice_form = ChoiceForm(request.POST)
+
+    if choice_form.is_valid():
+        choice = choice_form.save(commit=False)
+        if choice.poll.article.author.user != request.user:
+            raise Http404
+
+        choice.save()
+
+        return HttpResponseRedirect(
+            reverse('newshub:article_edit_poll', args=(choice.poll.pk,)))
+    else:
+        poll = choice_form.cleaned_data['poll']
+        if poll is None:
+            raise Http404
+
+        return render(
+            request, 'newshub/article/poll/edit_poll.html',
+            {'poll': poll, 'form': choice_form})
+
+
+@login_required
+def article_delete_poll_choice(request, pk):
+    choice = get_object_or_404(Choice, pk=pk)
+
+    if choice.poll.article.author.user != request.user:
+        raise Http404
+    else:
+        poll_pk = choice.poll.pk
+        choice.delete()
+
+        return HttpResponseRedirect(
+            reverse('newshub:article_edit_poll', args=(poll_pk,)))
+
+
+@login_required
+def article_poll_vote(request, pk):
+    if request.method != 'POST':
+        raise Http404
+
+    choice = get_object_or_404(Choice, pk=request.POST.get('choice', None))
+
+    poll = get_object_or_404(Poll, pk=pk)
+
+    if choice not in poll.choice_set.all():
+        raise Http404
+
+    if request.user in poll.voted.all():
+        return HttpResponseRedirect(
+            reverse('newshub:view_article', args=('home', poll.article.pk)))
+
+    choice.votes += 1
+    choice.save()
+
+    poll.voted.add(request.user)
+    poll.save()
+
+    return HttpResponseRedirect(
+        reverse('newshub:view_article', args=('home', poll.article.pk)))
