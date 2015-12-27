@@ -89,10 +89,16 @@ def new_article(request):
             article.save()
             form.save_m2m()
 
+            poll_title = request.POST.get('poll', None)
+
+            if poll_title is not None:
+                poll = Poll(title=poll_title, article=article)
+                poll.save()
+
             if request.POST['action'] == 'Save':
                 return HttpResponseRedirect(
                     reverse('newshub:edit_article',
-                            args=('home', article.pk,)))
+                            args=(article.pk,)))
             elif request.POST['action'] == 'Publish':
                 article.published = True
                 article.save()

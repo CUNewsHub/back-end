@@ -11,6 +11,11 @@ class TagWidget(ModelSelect2MultipleWidget):
 
 
 class NewArticleForm(forms.ModelForm):
+    poll = forms.CharField(
+        required=False,
+        label='Poll question',
+        help_text="If you want to create a poll for this article, type a question here")
+
     class Meta:
         model = Article
         exclude = ['author', 'likes', 'published']
