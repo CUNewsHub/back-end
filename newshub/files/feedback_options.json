@@ -1,12 +1,12 @@
 {
 	"feedback_options": [
-		"Enjoyable",
-		"Biased",
-		"Interesting",
+		"Informative",
+		"Provocative",
+		"Compelling",
+		"Objective",
+		"Unconvincing",
 		"Dull",
-		"Poorly Written",
-		"Well Written",
-		"Unsupported",
-		"Opinionated"
+		"Biased",
+		"Incoherent"
 	]
 }
