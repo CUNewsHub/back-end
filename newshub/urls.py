@@ -57,6 +57,10 @@ urlpatterns = [
         r'^article/poll/(?P<pk>[0-9]+)/vote/$',
         'newshub.views.article_poll_vote',
         name='article_poll_vote'),
+    url(
+        r'^article/(?P<a_id>[0-9]+)/add/feedback/(?P<f_id>[0-9]+)/$',
+        'newshub.views.article_add_feedback',
+        name='article_add_feedback'),
 
     # url(
     #     r'^my/articles/$',

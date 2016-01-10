@@ -144,3 +144,19 @@ class Choice(models.Model):
 
     class Meta:
         ordering = ['choice_text']
+
+
+class Feedback(models.Model):
+    name = models.CharField(max_length=255)
+
+    def __unicode__(self):
+        return self.name
+
+
+class UserFeedback(models.Model):
+    article = models.ForeignKey(Article, related_name='user_feedback')
+    user = models.ForeignKey(User)
+    feedback = models.ForeignKey(Feedback)
+
+    class Meta:
+        unique_together = ('article', 'user')

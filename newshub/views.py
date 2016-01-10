@@ -8,7 +8,7 @@ from django.contrib.auth.models import User
 from .forms import NewArticleForm, ProfileForm, CommentForm, PollForm
 from .forms import ChoiceForm
 from .models import Article, Author, Follow, Endorsement, Profile, Poll
-from .models import ViewedArticles, Choice
+from .models import ViewedArticles, Choice, Feedback, UserFeedback
 
 
 @login_required
@@ -131,10 +131,17 @@ def view_article(request, action_type, pk=None):
 
         comment_form = CommentForm(initial={'article': article})
 
+        try:
+            uf = UserFeedback.objects.get(user=request.user, article=article)
+        except UserFeedback.DoesNotExist:
+            uf = None
+
         return render(
             request, 'newshub/article/view.html',
             {'article': article, 'action_type': action_type,
-             'comment_form': comment_form})
+             'comment_form': comment_form, 'feedback_set': Feedback.objects.all(),
+             'uf': uf}
+             )
 
 
 @login_required
@@ -193,7 +200,7 @@ def action(request, action_type):
 
         try:
             author = Author.objects.get(pk=author)
-        except Author.DoesNotExists:
+        except Author.DoesNotExist:
             raise Http404
 
         obj, created = Follow.objects.get_or_create(
@@ -211,7 +218,7 @@ def action(request, action_type):
 
         try:
             author = Author.objects.get(pk=author)
-        except Author.DoesNotExists:
+        except Author.Does:
             raise Http404
 
         obj, created = Endorsement.objects.get_or_create(
@@ -229,7 +236,7 @@ def action(request, action_type):
 
         try:
             article = Article.objects.get(pk=article)
-        except Article.DoesNotExists:
+        except Article.DoesNotExist:
             raise Http404
 
         if request.user in article.likes.all():
@@ -365,3 +372,23 @@ def article_poll_vote(request, pk):
 
     return HttpResponseRedirect(
         reverse('newshub:view_article', args=('home', poll.article.pk)))
+
+def article_add_feedback(request, a_id, f_id):
+    if a_id is None or f_id is None:
+        raise Http404
+
+    if request.is_ajax == False:
+        raise Http404
+
+    feedback = get_object_or_404(Feedback, pk=f_id)
+    article = get_object_or_404(Article, pk=a_id)
+
+    try:
+        f = UserFeedback.objects.get(user=request.user, article=article)
+        f.feedback = feedback
+        f.save()
+    except UserFeedback.DoesNotExist:
+        UserFeedback.objects.create(user=request.user, article=article,
+                                    feedback=feedback)
+
+    return HttpResponse('success')

@@ -18,6 +18,8 @@ class NewArticleForm(forms.ModelForm):
 
     class Meta:
         model = Article
+        fields = [
+            'title', 'header_picture', 'headline', 'content', 'tags', 'poll']
         exclude = ['author', 'likes', 'published']
         widgets = {
             'content': RedactorEditor(

@@ -1,0 +1,12 @@
+{
+	"feedback_options": [
+		"Enjoyable",
+		"Biased",
+		"Interesting",
+		"Dull",
+		"Poorly Written",
+		"Well Written",
+		"Unsupported",
+		"Opinionated"
+	]
+}
