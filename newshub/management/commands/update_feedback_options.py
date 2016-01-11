@@ -22,4 +22,4 @@ class Command(BaseCommand):
                     Feedback.objects.create(name=feedback)
         except IOError:
             raise CommandError(
-                "File %s does not exist" % TAGS_FILE)
+                "File %s does not exist" % FEEDBACK_FILE)

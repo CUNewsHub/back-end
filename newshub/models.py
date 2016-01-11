@@ -25,12 +25,12 @@ class Subject(models.Model):
 
 class Profile(models.Model):
     YEAR_CHOICES = (
-        ('First Year', 'First Year'),
-        ('Second Year', 'Second Year'),
-        ('Third Year', 'Third Year'),
-        ('Fourth Year', 'Fourth Year'),
-        ('Masters', 'Masters'),
-        ('Graduate', 'Graduate'),
+        ('IA', 'First Year'),
+        ('IB', 'Second Year'),
+        ('II', 'Third Year'),
+        ('III', 'Fourth Year'),
+        ('M+', 'Masters'),
+        ('GRAD', 'Graduate'),
         ('N/A', 'N/A'),
     )
 

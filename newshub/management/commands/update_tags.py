@@ -1,4 +1,5 @@
-import json, os
+import json
+import os
 from ...models import Category, Tag
 from django.core.management.base import BaseCommand, CommandError
 from src.settings import BASE_DIR, TAGS_FILE

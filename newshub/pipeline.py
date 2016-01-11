@@ -4,7 +4,7 @@ from .models import Profile, Author
 
 
 def create_profile(
-        strategy, user, response, details,
+        backend, user, response, details,
         is_new=False, *args, **kwargs):
 
     url = 'http://graph.facebook.com/{0}/picture'.format(response['id'])
