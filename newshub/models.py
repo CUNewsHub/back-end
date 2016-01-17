@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-
+from django.core.validators import RegexValidator
 
 class College(models.Model):
     name = models.CharField(max_length=63)
@@ -46,6 +46,19 @@ class Profile(models.Model):
                             max_length=10)
 
 
+class Society(models.Model):
+    user = models.OneToOneField(User)
+    admins = models.ManyToManyField(User, related_name='admin_of')
+    logo = models.ImageField(upload_to='society_pictures/%Y/%m/%d',
+                             null=True, blank=True)
+    facebook_link = models.URLField(
+        blank=True, null=True, validators=[RegexValidator(
+            regex='^https?://www\.facebook\.com',
+            message='invalid facebook page')])
+    website = models.URLField(blank=True, null=True)
+    about = models.TextField(blank=True, null=True)
+
+
 class Author(models.Model):
     user = models.OneToOneField(User)
     endorsed_by = models.ManyToManyField(
@@ -60,9 +73,24 @@ class Author(models.Model):
         return self.user.profile.crsid_is_verified
 
 
+class TooManyEndorsementsError(Exception):
+    def __init__(self, value):
+        self.value = value
+
+    def __str__(self):
+        return repr(self.value)
+
+
 class Endorsement(models.Model):
     author = models.ForeignKey(Author)
     endorsed_by = models.ForeignKey(User)
+
+    def save(self, *args, **kwargs):
+        if self.endorsed_by.endorsement_set.count() > 4:
+            raise TooManyEndorsementsError(
+                'You have reached the limit on the Endorsenents, which is 3.')
+        else:
+            super(Endorsement, self).save(*args, **kwargs)
 
 
 class Follow(models.Model):

@@ -34,6 +34,10 @@ urlpatterns = [
         'newshub.views.update_profile',
         name='update_profile'),
     url(
+        r'^update/society/(?P<pk>[0-9]+)/$',
+        'newshub.views.update_society',
+        name='update_society'),
+    url(
         r'^article/add/poll/$',
         'newshub.views.article_add_poll',
         name='article_add_poll'),
@@ -61,6 +65,14 @@ urlpatterns = [
         r'^article/(?P<a_id>[0-9]+)/add/feedback/(?P<f_id>[0-9]+)/$',
         'newshub.views.article_add_feedback',
         name='article_add_feedback'),
+    url(
+        r'^societies/$',
+        'newshub.views.societies',
+        name='societies'),
+    url(
+        r'^societies/login/(?P<pk>[0-9]+)/$',
+        'newshub.views.societies_login',
+        name='societies_login')
 
     # url(
     #     r'^my/articles/$',

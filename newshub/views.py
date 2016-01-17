@@ -2,13 +2,12 @@ from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponseRedirect, HttpResponse, Http404, JsonResponse
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth import logout as auth_logout
+from django.contrib.auth import logout as auth_logout, login as auth_login
 from django.contrib.auth.models import User
-
 from .forms import NewArticleForm, ProfileForm, CommentForm, PollForm
-from .forms import ChoiceForm
+from .forms import ChoiceForm, SocietyForm, SocietyDataForm, UpdateSocietyForm
 from .models import Article, Author, Follow, Endorsement, Profile, Poll
-from .models import ViewedArticles, Choice, Feedback, UserFeedback
+from .models import ViewedArticles, Choice, Feedback, UserFeedback, Society
 
 
 @login_required
@@ -51,15 +50,40 @@ def logout(request):
 
 @login_required
 def profile(request, pk=None):
+    profile_form = None
     if pk is None:
-        profile_form = ProfileForm(instance=request.user.profile)
-        user = request.user
+        try:
+            profile_form = ProfileForm(instance=request.user.profile)
+            user = request.user
+            society = False
+        except Profile.DoesNotExist:
+            try:
+                user = request.user
+                society = user.society
+                profile_form = UpdateSocietyForm(
+                    instance=user.society,
+                    initial={'email': user.email,
+                             'socname': user.first_name})
+            except Society.DoesNotExist:
+                raise Http404
     else:
-        user = get_object_or_404(User, pk=pk)
-        profile_form = ProfileForm(instance=user.profile)
+        try:
+            user = get_object_or_404(User, pk=pk)
+            profile_form = ProfileForm(instance=user.profile)
+            society = False
+        except Profile.DoesNotExist:
+            try:
+                user = user = get_object_or_404(User, pk=pk)
+                profile_form = UpdateSocietyForm(
+                    instance=user.society,
+                    initial={'email': user.email,
+                             'socname': user.first_name})
+            except Society.DoesNotExist:
+                raise Http404
 
     return render(request, 'newshub/profile.html',
-                  {'user': user, 'profile_form': profile_form})
+                  {'user': user, 'profile_form': profile_form,
+                   'society': society})
 
 
 @login_required
@@ -73,10 +97,8 @@ def update_profile(request, pk):
     if form.is_valid():
         form.save()
 
-        return HttpResponseRedirect(
-            reverse('newshub:profile'))
-
-# Articles
+    return HttpResponseRedirect(
+        reverse('newshub:profile'))
 
 
 @login_required
@@ -91,7 +113,7 @@ def new_article(request):
 
             poll_title = request.POST.get('poll', None)
 
-            if poll_title is not None:
+            if poll_title is not None and poll_title != "":
                 poll = Poll(title=poll_title, article=article)
                 poll.save()
 
@@ -218,16 +240,23 @@ def action(request, action_type):
 
         try:
             author = Author.objects.get(pk=author)
-        except Author.Does:
+        except Author.DoesNotExist:
             raise Http404
 
-        obj, created = Endorsement.objects.get_or_create(
-            author=author, endorsed_by=request.user)
+        endorsement_count = Endorsement.objects.count()
 
-        if not created:
-            obj.delete()
+        if endorsement_count < 4:
+            obj, created = Endorsement.objects.get_or_create(
+                author=author, endorsed_by=request.user)
 
-        return JsonResponse({'created': created})
+            if not created:
+                obj.delete()
+
+            success = True
+        else:
+            success = False
+
+        return JsonResponse({'created': created, 'success': success})
     elif action_type == 'like':
         article = request.GET.get('article', None)
 
@@ -373,11 +402,13 @@ def article_poll_vote(request, pk):
     return HttpResponseRedirect(
         reverse('newshub:view_article', args=('home', poll.article.pk)))
 
+
+@login_required
 def article_add_feedback(request, a_id, f_id):
     if a_id is None or f_id is None:
         raise Http404
 
-    if request.is_ajax == False:
+    if request.is_ajax is False:
         raise Http404
 
     feedback = get_object_or_404(Feedback, pk=f_id)
@@ -392,3 +423,73 @@ def article_add_feedback(request, a_id, f_id):
                                     feedback=feedback)
 
     return HttpResponse('success')
+
+
+@login_required
+def societies(request):
+    if request.method == 'POST':
+        form = SocietyForm(request.POST)
+        society_data_form = SocietyDataForm(request.POST)
+        if form.is_valid() and society_data_form.is_valid():
+            new_user = form.save(commit=False)
+            new_user.username = 'tmp'
+            new_user.save()
+            new_user.username = 'society_' + str(new_user.pk + 20)
+            s = society_data_form.save(commit=False)
+            s.user = new_user
+            s.save()
+            s.admins.add(request.user)
+            new_user.society = s
+            new_user.save()
+            Author.objects.create(user=new_user)
+
+            return HttpResponseRedirect(reverse(
+                'newshub:profile', args=(new_user.pk,)))
+    else:
+        form = SocietyForm()
+        society_data_form = SocietyDataForm()
+    return render(request, "newshub/societies.html", {
+        'form': form,
+        'society_data_form': society_data_form
+    })
+
+
+@login_required
+def societies_login(request, pk):
+    s = get_object_or_404(Society, pk=pk)
+
+    if request.user not in s.admins.all():
+        raise Http404
+
+    auth_logout(request)
+
+    s.user.backend = 'django.contrib.auth.backends.ModelBackend'
+
+    auth_login(request, s.user)
+
+    return HttpResponseRedirect(reverse('newshub:home'))
+
+
+@login_required
+def update_society(request, pk):
+    society = get_object_or_404(Society, pk=pk)
+    if request.user != society.user or request.method != 'POST':
+        raise Http404
+
+    society_form = UpdateSocietyForm(
+        request.POST or None, request.FILES or None, instance=society)
+
+    if society_form.is_valid():
+        society_form.save()
+        user = society.user
+        user.email = society_form.cleaned_data['email']
+        user.first_name = society_form.cleaned_data['socname']
+        user.save()
+    else:
+        return render(
+            request, 'newshub/profile.html',
+            {'user': request.user,
+            'society': society, 'society_form': society_form})
+
+    return HttpResponseRedirect(
+        reverse('newshub:profile')+'#edit-profile')
