@@ -55,7 +55,7 @@ def profile(request, pk=None):
         try:
             profile_form = ProfileForm(instance=request.user.profile)
             user = request.user
-            society = False
+            society = None
         except Profile.DoesNotExist:
             try:
                 user = request.user
@@ -70,7 +70,7 @@ def profile(request, pk=None):
         try:
             user = get_object_or_404(User, pk=pk)
             profile_form = ProfileForm(instance=user.profile)
-            society = False
+            society = None
         except Profile.DoesNotExist:
             try:
                 user = user = get_object_or_404(User, pk=pk)
@@ -78,6 +78,7 @@ def profile(request, pk=None):
                     instance=user.society,
                     initial={'email': user.email,
                              'socname': user.first_name})
+                society = user.society
             except Society.DoesNotExist:
                 raise Http404
 
