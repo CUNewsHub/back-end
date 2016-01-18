@@ -110,6 +110,13 @@ if DEBUG:
         MEDIA_URL = '/static/current/media/'
         MEDIA_ROOT = '/home/newshub/webapps/newshub_static/shared/media'
         STATIC_ROOT = os.path.abspath(os.path.join(FRONTEND_BASE, 'static'))
+else:
+    FRONTEND_BASE = '/home/newshub/webapps/newshub_static/current'
+
+    STATIC_URL = '/static/current/static/'
+    MEDIA_URL = '/static/current/media/'
+    MEDIA_ROOT = '/home/newshub/webapps/newshub_static/shared/media'
+    STATIC_ROOT = os.path.abspath(os.path.join(FRONTEND_BASE, 'static'))
 
 
 # TINYMCE CONFIG
