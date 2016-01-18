@@ -193,6 +193,14 @@ def edit_article(request, pk=None):
             article.save()
             return HttpResponseRedirect(
                 reverse('newshub:view_article', args=('home', pk,)))
+        elif request.POST['action'] == 'Published':
+            article.published = False
+            article.save()
+            return HttpResponseRedirect(
+                reverse('newshub:edit_article', args=(pk,)))
+
+        return HttpResponseRedirect(
+            reverse('newshub:edit_article', args=(pk,)))
 
     else:
         return render(
