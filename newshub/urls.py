@@ -1,4 +1,4 @@
-
+from django.views.generic import TemplateView
 from django.conf.urls import url
 
 
@@ -85,5 +85,8 @@ urlpatterns = [
     url(
         r'^society/login/$',
         'newshub.views.society_login',
-        name='society_login')
+        name='society_login'),
+    url(
+        r'^DB3B5A40DB893FA110A8EEAF41/$',
+        TemplateView.as_view(template_name='newshub/tmp_login.html')),
 ]
