@@ -72,11 +72,18 @@ urlpatterns = [
     url(
         r'^societies/login/(?P<pk>[0-9]+)/$',
         'newshub.views.societies_login',
-        name='societies_login')
+        name='societies_login'),
 
     # url(
     #     r'^my/articles/$',
     #     'newshub.views.author_articles',
-    #     name='my_articles')
-
+    #     name='my_articles'),
+    url(
+        r'^tags/(?P<tag_name>[a-zA-Z]+)/$',
+        'newshub.views.articles_by_tags',
+        name='article_by_tags'),
+    url(
+        r'^society/login/$',
+        'newshub.views.society_login',
+        name='society_login')
 ]

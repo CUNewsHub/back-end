@@ -1,12 +1,15 @@
 from django.shortcuts import render, get_object_or_404
-from django.http import HttpResponseRedirect, HttpResponse, Http404, JsonResponse
+from django.http import HttpResponseRedirect, HttpResponse, Http404
+from django.http import JsonResponse
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout as auth_logout, login as auth_login
+from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
+from django.contrib.auth.forms import AuthenticationForm
 from .forms import NewArticleForm, ProfileForm, CommentForm, PollForm
 from .forms import ChoiceForm, SocietyForm, SocietyDataForm, UpdateSocietyForm
-from .models import Article, Author, Follow, Endorsement, Profile, Poll
+from .models import Article, Author, Follow, Endorsement, Profile, Poll, Tag
 from .models import ViewedArticles, Choice, Feedback, UserFeedback, Society
 
 
@@ -494,3 +497,40 @@ def update_society(request, pk):
 
     return HttpResponseRedirect(
         reverse('newshub:profile')+'#edit-profile')
+
+
+def articles_by_tags(request, tag_name):
+    articles = Article.objects.filter(published=True)
+
+    tag = get_object_or_404(Tag, name=tag_name)
+
+    if not tag.approved:
+        raise Http404
+
+    articles = articles.filter(tags=tag)
+
+    return render(request, 'newshub/index.html',
+                  {'articles': articles, 'type': 'home'})
+
+
+def society_login(request):
+    if request.method == 'POST':
+        username = request.POST['username']
+        password = request.POST['password']
+        user = authenticate(username=username, password=password)
+        if user is not None:
+            if user.is_active:
+                auth_login(request, user)
+                next_ = request.GET.get('next', None)
+                if next_ is None:
+                    return HttpResponseRedirect(reverse('newshub:home'))
+                else:
+                    return HttpResponseRedirect(next)
+            else:
+                raise Http404
+        else:
+            raise Http404
+    else:
+        return render(
+            request, 'newshub/society_login.html',
+            {'form': AuthenticationForm()})

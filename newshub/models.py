@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import RegexValidator
 
+
 class College(models.Model):
     name = models.CharField(max_length=63)
 
@@ -110,7 +111,8 @@ class Category(models.Model):
 
 class Tag(models.Model):
     name = models.CharField(max_length=63)
-    category = models.ForeignKey(Category)
+    category = models.ForeignKey(Category, null=True, blank=True)
+    approved = models.BooleanField(default=False)
 
     def __unicode__(self):
         return self.name

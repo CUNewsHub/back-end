@@ -21,7 +21,8 @@ class Command(BaseCommand):
                     cat, created = Category.objects.get_or_create(
                         name=category["name"])
                     for tag in category["tags"]:
-                        Tag.objects.get_or_create(category=cat, name=tag)
+                        Tag.objects.get_or_create(
+                            category=cat, name=tag, approved=True)
 
         except IOError:
             raise CommandError(
