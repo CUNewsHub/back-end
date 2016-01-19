@@ -5,6 +5,7 @@ from django_select2.forms import ModelSelect2TagWidget
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.utils.encoding import force_text
+from django.db.models import Count
 
 
 class TagWidget(ModelSelect2TagWidget):
@@ -50,7 +51,8 @@ class NewArticleForm(forms.ModelForm):
 class ProfileForm(forms.ModelForm):
     class Meta:
         model = Profile
-        exclude = ['user', 'crsid_is_verified']
+        exclude = ['user', 'crsid_is_verified', 'tag_page_seen', 
+                   'follow_endorse_page_seen']
         fields = ['display_name', 'picture', 'crsid', 'college', 'subject',
                   'year', 'about']
 
@@ -99,9 +101,22 @@ class SocietyForm(UserCreationForm):
 class SocietyDataForm(forms.ModelForm):
     class Meta:
         model = Society
-        exclude = ('user', 'admins')
+        exclude = ('user', 'admins', 'tag_page_seen',
+                   'follow_endorse_page_seen')
 
 
 class UpdateSocietyForm(SocietyDataForm):
     email = forms.EmailField()
-    socname = forms.CharField(max_length=30, required=True, label='Society name')
+    socname = forms.CharField(
+        max_length=30, required=True, label='Society name')
+
+
+class LandingTagsForm(forms.Form):
+    tags = Tag.objects.all().filter(approved=True) \
+              .annotate(article_num=Count('article')) \
+              .order_by('-article_num')[:20]
+    CHOICES = [(x.id, x) for x in tags]
+
+    tags = forms.MultipleChoiceField(
+        required=False,
+        widget=forms.CheckboxSelectMultiple, choices=CHOICES)

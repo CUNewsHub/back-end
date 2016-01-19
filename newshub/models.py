@@ -24,7 +24,15 @@ class Subject(models.Model):
         return self.name
 
 
-class Profile(models.Model):
+class LandingPages(models.Model):
+    tag_page_seen = models.BooleanField(default=False)
+    follow_endorse_page_seen = models.BooleanField(default=False)
+
+    class Meta:
+        abstract = True
+
+
+class Profile(LandingPages):
     YEAR_CHOICES = (
         ('IA', 'First Year'),
         ('IB', 'Second Year'),
@@ -47,7 +55,7 @@ class Profile(models.Model):
                             max_length=10)
 
 
-class Society(models.Model):
+class Society(LandingPages):
     user = models.OneToOneField(User)
     admins = models.ManyToManyField(User, related_name='admin_of')
     logo = models.ImageField(upload_to='society_pictures/%Y/%m/%d',

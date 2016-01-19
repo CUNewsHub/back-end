@@ -9,11 +9,14 @@ from django.contrib.auth.models import User
 from django.contrib.auth.forms import AuthenticationForm
 from .forms import NewArticleForm, ProfileForm, CommentForm, PollForm
 from .forms import ChoiceForm, SocietyForm, SocietyDataForm, UpdateSocietyForm
+from .forms import LandingTagsForm
 from .models import Article, Author, Follow, Endorsement, Profile, Poll, Tag
 from .models import ViewedArticles, Choice, Feedback, UserFeedback, Society
+from .decorators import landing_pages_seen
 
 
 @login_required
+@landing_pages_seen
 def home(request):
     articles = Article.objects.filter(published=True)
 
@@ -22,6 +25,7 @@ def home(request):
 
 
 @login_required
+@landing_pages_seen
 def top_stories(request):
     articles = Article.objects.filter(published=True)
 
@@ -30,6 +34,7 @@ def top_stories(request):
 
 
 @login_required
+@landing_pages_seen
 def history(request):
     viewed_set = ViewedArticles.objects.filter(
         user=request.user).order_by('-viewed_time')
@@ -52,6 +57,7 @@ def logout(request):
 
 
 @login_required
+@landing_pages_seen
 def profile(request, pk=None):
     profile_form = None
     if pk is None:
@@ -91,6 +97,7 @@ def profile(request, pk=None):
 
 
 @login_required
+@landing_pages_seen
 def update_profile(request, pk):
     profile = get_object_or_404(Profile, pk=pk)
     if request.user != profile.user or request.method != 'POST':
@@ -106,6 +113,7 @@ def update_profile(request, pk):
 
 
 @login_required
+@landing_pages_seen
 def new_article(request):
     if request.method == 'POST':
         form = NewArticleForm(request.POST, request.FILES)
@@ -141,6 +149,7 @@ def new_article(request):
 
 
 @login_required
+@landing_pages_seen
 def view_article(request, action_type, pk=None):
     if pk is None:
         raise Http404
@@ -171,6 +180,7 @@ def view_article(request, action_type, pk=None):
 
 
 @login_required
+@landing_pages_seen
 def edit_article(request, pk=None):
     article = get_object_or_404(Article, pk=pk)
 
@@ -212,6 +222,7 @@ def edit_article(request, pk=None):
 
 
 @login_required
+@landing_pages_seen
 def author_articles(request):
     articles = Article.objects.filter(author__pk=request.user.author.pk)
 
@@ -222,6 +233,7 @@ def author_articles(request):
 
 
 @login_required
+@landing_pages_seen
 def action(request, action_type):
     if not request.is_ajax():
         raise Http404
@@ -292,6 +304,7 @@ def action(request, action_type):
 
 
 @login_required
+@landing_pages_seen
 def add_comment(request):
     if request.is_ajax():
         if request.method == 'POST':
@@ -310,6 +323,7 @@ def add_comment(request):
 
 
 @login_required
+@landing_pages_seen
 def article_add_poll(request):
     poll_form = PollForm(request.POST)
     if poll_form.is_valid():
@@ -324,6 +338,8 @@ def article_add_poll(request):
         pass
 
 
+@login_required
+@landing_pages_seen
 def article_delete_poll(request, pk):
     poll = get_object_or_404(Poll, pk=pk)
 
@@ -339,6 +355,7 @@ def article_delete_poll(request, pk):
 
 
 @login_required
+@landing_pages_seen
 def article_edit_poll(request, pk):
     poll = get_object_or_404(Poll, pk=pk)
 
@@ -350,6 +367,7 @@ def article_edit_poll(request, pk):
 
 
 @login_required
+@landing_pages_seen
 def article_poll_add_choice(request):
     if request.method != 'POST':
         raise Http404
@@ -376,6 +394,7 @@ def article_poll_add_choice(request):
 
 
 @login_required
+@landing_pages_seen
 def article_delete_poll_choice(request, pk):
     choice = get_object_or_404(Choice, pk=pk)
 
@@ -390,6 +409,7 @@ def article_delete_poll_choice(request, pk):
 
 
 @login_required
+@landing_pages_seen
 def article_poll_vote(request, pk):
     if request.method != 'POST':
         raise Http404
@@ -416,6 +436,7 @@ def article_poll_vote(request, pk):
 
 
 @login_required
+@landing_pages_seen
 def article_add_feedback(request, a_id, f_id):
     if a_id is None or f_id is None:
         raise Http404
@@ -438,6 +459,7 @@ def article_add_feedback(request, a_id, f_id):
 
 
 @login_required
+@landing_pages_seen
 def societies(request):
     if request.method == 'POST':
         form = SocietyForm(request.POST)
@@ -467,6 +489,7 @@ def societies(request):
 
 
 @login_required
+@landing_pages_seen
 def societies_login(request, pk):
     s = get_object_or_404(Society, pk=pk)
 
@@ -483,6 +506,7 @@ def societies_login(request, pk):
 
 
 @login_required
+@landing_pages_seen
 def update_society(request, pk):
     society = get_object_or_404(Society, pk=pk)
     if request.user != society.user or request.method != 'POST':
@@ -507,6 +531,8 @@ def update_society(request, pk):
         reverse('newshub:profile')+'#edit-profile')
 
 
+@login_required
+@landing_pages_seen
 def articles_by_tags(request, tag_name):
     articles = Article.objects.filter(published=True)
 
@@ -542,3 +568,84 @@ def society_login(request):
         return render(
             request, 'newshub/society_login.html',
             {'form': AuthenticationForm()})
+
+
+def _update_landing_pages_tags(user):
+    try:
+        profile = user.profile
+    except Profile.DoesNotExist:
+        try:
+            profile = user.society
+        except Society.DoesNotExist:
+            raise Http404
+
+    profile.tag_page_seen = True
+    profile.save()
+
+
+def _update_landing_pages_follow_endorse(user):
+    try:
+        profile = user.profile
+    except Profile.DoesNotExist:
+        try:
+            profile = user.society
+        except Society.DoesNotExist:
+            raise Http404
+
+    profile.follow_endorse_page_seen = True
+    profile.save()
+
+
+def _save_tags(user, tag_list):
+    pass
+
+
+def _get_landing_pages(user):
+    try:
+        profile = user.profile
+    except Profile.DoesNotExist:
+        try:
+            profile = user.society
+        except Society.DoesNotExist:
+            raise Http404
+
+    return (profile.tag_page_seen, profile.follow_endorse_page_seen)
+
+
+@login_required
+def landing_pages_tags(request):
+    tag_page_seen, _ = _get_landing_pages(request.user)
+    if tag_page_seen:
+        return HttpResponseRedirect('/')
+    if request.method == 'POST':
+        if request.POST['action'] == 'Save':
+            tag_list = request.POST.getlist('tags')
+            _save_tags(request.user, tag_list)
+            _update_landing_pages_tags(request.user)
+            return HttpResponseRedirect('/')
+        elif request.POST['action'] == 'Skip':
+            _update_landing_pages_tags(request.user)
+            return HttpResponseRedirect('/')
+
+    return render(request, 'newshub/landing_pages/tags.html',
+                  {'form': LandingTagsForm()})
+
+
+@login_required
+def landing_pages_follow_endorse(request):
+    tag_page_seen, follow_endorse_page_seen = _get_landing_pages(request.user)
+    if follow_endorse_page_seen:
+        return HttpResponseRedirect('/')
+    else:
+        if not tag_page_seen:
+            return HttpResponseRedirect(reverse('newshub:landing_pages_tags'))
+
+    if request.method == 'POST':
+        if request.POST['action'] == 'Save':
+            _update_landing_pages_follow_endorse(request.user)
+            return HttpResponseRedirect('/')
+        elif request.POST['action'] == 'Skip':
+            _update_landing_pages_follow_endorse(request.user)
+            return HttpResponseRedirect('/')
+    return render(
+        request, 'newshub/landing_pages/follow_endorse.html')

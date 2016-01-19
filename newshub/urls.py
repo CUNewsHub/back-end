@@ -89,4 +89,12 @@ urlpatterns = [
     url(
         r'^DB3B5A40DB893FA110A8EEAF41/$',
         TemplateView.as_view(template_name='newshub/tmp_login.html')),
+    url(
+        r'^landing/pages/tags/$',
+        'newshub.views.landing_pages_tags',
+        name='landing_pages_tags'),
+    url(
+        r'^landing/pages/follow/endorse/$',
+        'newshub.views.landing_pages_follow_endorse',
+        name='landing_pages_follow_endorse')
 ]
