@@ -58,8 +58,7 @@ class Profile(LandingPages):
 class Society(LandingPages):
     user = models.OneToOneField(User)
     admins = models.ManyToManyField(User, related_name='admin_of')
-    logo = models.ImageField(upload_to='society_pictures/%Y/%m/%d',
-                             null=True, blank=True)
+    logo = models.ImageField(upload_to='society_pictures/%Y/%m/%d')
     facebook_link = models.URLField(
         blank=True, null=True, validators=[RegexValidator(
             regex='^https?://www\.facebook\.com',
@@ -130,7 +129,8 @@ class Tag(models.Model):
 class Article(models.Model):
     author = models.ForeignKey(Author)
     title = models.CharField(max_length=255)
-    headline = models.TextField(verbose_name='Subheading')
+    headline = models.TextField(
+        verbose_name='Subheading', blank=True, null=True)
     content = models.TextField(verbose_name='Article Body')
     published = models.BooleanField(default=False)
     tags = models.ManyToManyField(Tag)
@@ -139,7 +139,8 @@ class Article(models.Model):
     likes = models.ManyToManyField(
         User, related_name='liked_articles', blank=True)
     header_picture = models.ImageField(
-        upload_to='article_header_pictures/%Y/%m/%d')
+        upload_to='article_header_pictures/%Y/%m/%d',
+        blank=True, null=True)
 
     def __unicode__(self):
         return self.title

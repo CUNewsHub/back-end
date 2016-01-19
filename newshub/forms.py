@@ -1,30 +1,41 @@
 from django import forms
 from .models import Article, Profile, Comment, Poll, Choice, Society, Tag
 from redactor.widgets import RedactorEditor
-from django_select2.forms import ModelSelect2TagWidget
+from django_select2.forms import ModelSelect2TagWidget, Select2MultipleWidget
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.utils.encoding import force_text
 from django.db.models import Count
 
 
-class TagWidget(ModelSelect2TagWidget):
+# class TagWidget(ModelSelect2TagWidget):
+#     search_fields = [
+#         'name__icontains',
+#     ]
+
+#     queryset = Tag.objects.all()
+
+#     def value_from_datadict(self, data, files, name):
+#         values = super(TagWidget, self).value_from_datadict(data, files, name)
+#         qs = self.queryset.filter(**{'pk__in': list(values)})
+#         pks = set(force_text(getattr(o, 'pk')) for o in qs)
+#         cleaned_values = []
+#         for val in values:
+#             if force_text(val) not in pks:
+#                 val = self.queryset.create(name=val).pk
+#             cleaned_values.append(val)
+#         return cleaned_values
+class TitleSearchFieldMixin(object):
     search_fields = [
-        'name__icontains',
+        'name__icontains'
     ]
 
-    queryset = Tag.objects.all()
 
-    def value_from_datadict(self, data, files, name):
-        values = super(TagWidget, self).value_from_datadict(data, files, name)
-        qs = self.queryset.filter(**{'name__in': list(values)})
-        pks = set(force_text(getattr(o, 'name')) for o in qs)
-        cleaned_values = []
-        for val in values:
-            if force_text(val) not in pks:
-                val = self.queryset.create(name=val)
-            cleaned_values.append(val)
-        return cleaned_values
+class TagWidget(TitleSearchFieldMixin, ModelSelect2TagWidget):
+    model = Tag
+
+    def create_value(self, value):
+        self.get_queryset().create(name=value)
 
 
 class NewArticleForm(forms.ModelForm):
@@ -44,7 +55,7 @@ class NewArticleForm(forms.ModelForm):
                     'formatting', 'bold', 'italic', 'deleted',
                     'list', 'link', 'horizontalrule', 'orderedlist',
                     'unorderedlist']}),
-            'tags': TagWidget()
+            'tags': Select2MultipleWidget
         }
 
 

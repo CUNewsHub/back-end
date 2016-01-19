@@ -9,7 +9,7 @@ def landing_pages_seen(original_function):
             profile = request.user.profile
         except Profile.DoesNotExist:
             try:
-                profile = request.user.Society
+                profile = request.user.society
             except Society.DoesNotExist:
                 raise Http404
 

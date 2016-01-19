@@ -1,5 +1,5 @@
 from django.views.generic import TemplateView
-from django.conf.urls import url
+from django.conf.urls import url, include
 
 
 urlpatterns = [
@@ -65,10 +65,10 @@ urlpatterns = [
         r'^article/(?P<a_id>[0-9]+)/add/feedback/(?P<f_id>[0-9]+)/$',
         'newshub.views.article_add_feedback',
         name='article_add_feedback'),
-    # url(
-    #    r'^societies/$',
-    #    'newshub.views.societies',
-    #    name='societies'),
+    url(
+        r'^create/society/$',
+        'newshub.views.create_society',
+        name='create_society'),
     url(
         r'^societies/login/(?P<pk>[0-9]+)/$',
         'newshub.views.societies_login',

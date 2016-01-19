@@ -278,6 +278,7 @@ def action(request, action_type):
 
             success = True
         else:
+            created = False
             success = False
 
         return JsonResponse({'created': created, 'success': success})
@@ -460,7 +461,7 @@ def article_add_feedback(request, a_id, f_id):
 
 @login_required
 @landing_pages_seen
-def societies(request):
+def create_society(request):
     if request.method == 'POST':
         form = SocietyForm(request.POST)
         society_data_form = SocietyDataForm(request.POST)
