@@ -96,5 +96,10 @@ urlpatterns = [
     url(
         r'^landing/pages/follow/endorse/$',
         'newshub.views.landing_pages_follow_endorse',
-        name='landing_pages_follow_endorse')
+        name='landing_pages_follow_endorse'),
+    url(
+        r'^privacy/policy/$',
+        TemplateView.as_view(
+            template_name='newshub/management/privacy_policy.html'),
+        name='privacy_policy')
 ]
