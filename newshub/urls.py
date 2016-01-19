@@ -101,5 +101,15 @@ urlpatterns = [
         r'^privacy/policy/$',
         TemplateView.as_view(
             template_name='newshub/management/privacy_policy.html'),
-        name='privacy_policy')
+        name='privacy_policy'),
+    url(
+        r'^about/us/$',
+        TemplateView.as_view(
+            template_name='newshub/management/about_us.html'),
+        name='about_us'),
+    url(
+        r'^contact/us/$',
+        TemplateView.as_view(
+            template_name='newshub/management/contact_us.html'),
+        name='contact_us')
 ]
