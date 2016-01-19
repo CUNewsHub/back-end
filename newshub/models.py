@@ -121,6 +121,7 @@ class Tag(models.Model):
     name = models.CharField(max_length=63)
     category = models.ForeignKey(Category, null=True, blank=True)
     approved = models.BooleanField(default=False)
+    user_set = models.ManyToManyField(User)
 
     def __unicode__(self):
         return self.name

@@ -597,7 +597,12 @@ def _update_landing_pages_follow_endorse(user):
 
 
 def _save_tags(user, tag_list):
-    pass
+    for tag in tag_list:
+        try:
+            t = Tag.objects.get(pk=tag)
+            user.tag_set.add(t)
+        except Tag.DoesNotExist:
+            pass
 
 
 def _get_landing_pages(user):
