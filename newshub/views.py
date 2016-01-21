@@ -468,19 +468,25 @@ def article_add_feedback(request, a_id, f_id):
 def create_society(request):
     if request.method == 'POST':
         form = SocietyForm(request.POST)
-        society_data_form = SocietyDataForm(request.POST)
+        society_data_form = SocietyDataForm(request.POST, request.FILES)
         if form.is_valid() and society_data_form.is_valid():
             new_user = form.save(commit=False)
             new_user.username = 'tmp'
             new_user.save()
             new_user.username = 'society_' + str(new_user.pk + 20)
             s = society_data_form.save(commit=False)
+            s.tag_page_seen = True
+            s.follow_endorse_page_seen = True
             s.user = new_user
             s.save()
             s.admins.add(request.user)
             new_user.society = s
             new_user.save()
             Author.objects.create(user=new_user)
+
+            auth_logout(request)
+            new_user.backend = 'django.contrib.auth.backends.ModelBackend'
+            auth_login(request, new_user)
 
             return HttpResponseRedirect(reverse(
                 'newshub:profile', args=(new_user.pk,)))
@@ -507,7 +513,7 @@ def societies_login(request, pk):
 
     auth_login(request, s.user)
 
-    return HttpResponseRedirect(reverse('newshub:home'))
+    return HttpResponseRedirect(reverse('newshub:profile'))
 
 
 @login_required
@@ -562,7 +568,7 @@ def society_login(request):
                 auth_login(request, user)
                 next_ = request.GET.get('next', None)
                 if next_ is None:
-                    return HttpResponseRedirect(reverse('newshub:home'))
+                    return HttpResponseRedirect(reverse('newshub:profile'))
                 else:
                     return HttpResponseRedirect(next)
             else:
