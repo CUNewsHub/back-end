@@ -457,8 +457,8 @@ def article_add_feedback(request, a_id, f_id):
 
         f.save()
     except UserFeedback.DoesNotExist:
-        UserFeedback.objects.create(user=request.user, article=article,
-                                    feedback=feedback)
+        uf = UserFeedback.objects.create(user=request.user, article=article)
+        uf.add(feedback)
 
     return HttpResponse('success')
 
