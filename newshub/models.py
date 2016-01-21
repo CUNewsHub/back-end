@@ -149,7 +149,8 @@ class Article(models.Model):
 class ViewedArticles(models.Model):
     user = models.ForeignKey(User)
     article = models.ForeignKey(Article)
-    viewed_time = models.DateTimeField(auto_now=True)
+    last_viewed_time = models.DateTimeField(auto_now=True)
+    number_of_views = models.IntegerField(default=0)
 
 
 class Comment(models.Model):
@@ -163,7 +164,7 @@ class Comment(models.Model):
 
 
 class Poll(models.Model):
-    title = models.CharField(max_length=255, verbose_name='Poll title')
+    title = models.CharField(max_length=255, verbose_name='Poll question')
     voted = models.ManyToManyField(User)
     article = models.OneToOneField(Article, null=True, blank=True)
 
@@ -193,7 +194,7 @@ class Feedback(models.Model):
 class UserFeedback(models.Model):
     article = models.ForeignKey(Article, related_name='user_feedback')
     user = models.ForeignKey(User)
-    feedback = models.ForeignKey(Feedback)
+    feedback = models.ManyToManyField(Feedback)
 
     class Meta:
         unique_together = ('article', 'user')

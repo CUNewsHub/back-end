@@ -90,12 +90,13 @@ class ChoiceForm(forms.ModelForm):
 
 
 class SocietyForm(UserCreationForm):
+    first_name = forms.CharField(
+        label='Society Name', max_length=30, required=True)
+    email = forms.EmailField(
+        label='Society contact email', required=True)
+
     class Meta:
         model = User
-        labels = {
-            'first_name': 'Society Name',
-            'email': 'Soceity contact email',
-        }
         fields = ('first_name', 'email')
 
     def save(self, commit=True):

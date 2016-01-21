@@ -450,7 +450,11 @@ def article_add_feedback(request, a_id, f_id):
 
     try:
         f = UserFeedback.objects.get(user=request.user, article=article)
-        f.feedback = feedback
+        if feedback in f.feedback.all():
+            f.feedback.remove(feedback)
+        else:
+            f.feedback.add(feedback)
+
         f.save()
     except UserFeedback.DoesNotExist:
         UserFeedback.objects.create(user=request.user, article=article,
