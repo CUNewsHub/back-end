@@ -37,7 +37,7 @@ def top_stories(request):
 @landing_pages_seen
 def history(request):
     viewed_set = ViewedArticles.objects.filter(
-        user=request.user).order_by('-viewed_time')
+        user=request.user).order_by('-last_viewed_time')
     articles = [x.article for x in viewed_set]
 
     return render(request, 'newshub/index.html',
@@ -628,12 +628,9 @@ def landing_pages_tags(request):
     if tag_page_seen:
         return HttpResponseRedirect('/')
     if request.method == 'POST':
-        if request.POST['action'] == 'Save':
+        if request.POST['action'] == 'Next':
             tag_list = request.POST.getlist('tags')
             _save_tags(request.user, tag_list)
-            _update_landing_pages_tags(request.user)
-            return HttpResponseRedirect('/')
-        elif request.POST['action'] == 'Skip':
             _update_landing_pages_tags(request.user)
             return HttpResponseRedirect('/')
 
@@ -651,10 +648,7 @@ def landing_pages_follow_endorse(request):
             return HttpResponseRedirect(reverse('newshub:landing_pages_tags'))
 
     if request.method == 'POST':
-        if request.POST['action'] == 'Save':
-            _update_landing_pages_follow_endorse(request.user)
-            return HttpResponseRedirect('/')
-        elif request.POST['action'] == 'Skip':
+        if request.POST['action'] == 'Next':
             _update_landing_pages_follow_endorse(request.user)
             return HttpResponseRedirect('/')
     return render(
