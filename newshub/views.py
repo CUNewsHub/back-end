@@ -162,7 +162,16 @@ def view_article(request, action_type, pk=None):
         obj, created = ViewedArticles.objects.get_or_create(
             user=request.user, article=article)
 
+        obj.number_of_views += 1
+
         obj.save()
+
+        article_view_count = sum(
+            [x.number_of_views for x in ViewedArticles.objects.filter(
+                article=article)])
+
+        article_feedback_sum = sum(
+            [x.feedback.count() for x in article.user_feedback.all()])
 
         comment_form = CommentForm(initial={'article': article})
 
@@ -174,8 +183,10 @@ def view_article(request, action_type, pk=None):
         return render(
             request, 'newshub/article/view.html',
             {'article': article, 'action_type': action_type,
-             'comment_form': comment_form, 'feedback_set': Feedback.objects.all(),
-             'uf': uf}
+             'comment_form': comment_form, 'uf': uf,
+             'feedback_set': Feedback.objects.all(),
+             'article_view_count': article_view_count,
+             'article_feedback_sum': article_feedback_sum}
              )
 
 
