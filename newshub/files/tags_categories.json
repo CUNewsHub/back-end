@@ -18,7 +18,7 @@
 				"tennis",
 				"squash"
 			]
-		}
+		},
 		{
 			"name": "Cambridge Politics",
 			"tags": [
@@ -34,7 +34,7 @@
 				"free speech",
 				"street lights"
 			]
-		}
+		},
 		{
 			"name": "UK Politics",
 			"tags": [
@@ -50,7 +50,7 @@
 				"EU referendum",
 				"immigration"
 			]
-		}
+		},
 		{
 			"name": "International Politics",
 			"tags": [
@@ -66,7 +66,7 @@
 				"Greece",
 				"Refugees"
 			]
-		}
+		},
 		{
 			"name": "Cambridge",
 			"tags": [
@@ -80,13 +80,13 @@
 				"college",
 				"drinking societies",
 				"JCR",
-				"hustings"
+				"hustings",
 				"Turf",
 				"the other place",
 				"varsity",
 				"Chist"
 			]
-		}
+		},
 		{
 			"name": "Business",
 			"tags": [
@@ -108,7 +108,7 @@
 				
 				
 			]
-		}
+		},
 		{
 			"name": "Arts",
 			"tags": [
@@ -124,13 +124,12 @@
 				"bands",
 				"jazz"
 			]
-		}
+		},
 		{
 			"name": "Lifestyle",
 			"tags": [
 				"food",
 				"restaurants",
-				"review",
 				"clickbait",
 				"procrastination",
 				"travel",
@@ -147,10 +146,9 @@
 				"cocktail",
 				"fashion",
 				"clothes",
-				"blogging",
-				
+				"blogging"				
 			]
-		}
+		},
 		{
 			"name": "Subject",
 			"tags": [
@@ -166,11 +164,10 @@
 				"Materials",
 				"Languages"
 			]
-		}
+		},
 		{
 			"name": "Other",
-			"tags": [
-			]
+			"tags": []
 		}
 	]
 }
