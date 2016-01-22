@@ -167,5 +167,10 @@
 				"Languages"
 			]
 		}
+		{
+			"name": "Other",
+			"tags": [
+			]
+		}
 	]
 }
