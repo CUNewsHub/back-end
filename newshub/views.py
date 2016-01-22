@@ -715,5 +715,5 @@ def add_tag(request):
         }
     else:
         data['success'] = False
-        data['error_msg'] = "The form is invalid"
+        data['error_msg'] = "This tag already exists"
     return JsonResponse(data)

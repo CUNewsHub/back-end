@@ -58,6 +58,11 @@ class NewArticleForm(forms.ModelForm):
             'tags': Select2MultipleWidget
         }
 
+        help_texts = {
+            'title': 'Maxmimum 60 characters',
+            'headline': 'Maximum 360 characters'
+        }
+
 
 class ProfileForm(forms.ModelForm):
     class Meta:

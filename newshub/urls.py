@@ -79,7 +79,7 @@ urlpatterns = [
     #     'newshub.views.author_articles',
     #     name='my_articles'),
     url(
-        r'^tags/(?P<tag_name>[a-zA-Z]+)/$',
+        r'^tags/(?P<tag_name>[\w|\W]+)/$',
         'newshub.views.articles_by_tags',
         name='article_by_tags'),
     url(

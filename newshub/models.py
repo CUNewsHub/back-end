@@ -117,8 +117,8 @@ class Category(models.Model):
 
 
 class Tag(models.Model):
-    name = models.CharField(max_length=63)
-    category = models.ForeignKey(Category, null=True, blank=True)
+    name = models.CharField(max_length=63, unique=True)
+    category = models.ForeignKey(Category)
     approved = models.BooleanField(default=False)
     user_set = models.ManyToManyField(User)
 
