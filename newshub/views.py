@@ -7,6 +7,7 @@ from django.contrib.auth import logout as auth_logout, login as auth_login
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import AuthenticationForm
+from django.db.models import Count
 from .forms import NewArticleForm, ProfileForm, CommentForm, PollForm
 from .forms import ChoiceForm, SocietyForm, SocietyDataForm, UpdateSocietyForm
 from .forms import LandingTagsForm
@@ -109,7 +110,7 @@ def update_profile(request, pk):
         form.save()
 
     return HttpResponseRedirect(
-        reverse('newshub:profile'))
+        reverse('newshub:profile')+'#edit-profile')
 
 
 @login_required
@@ -165,13 +166,30 @@ def view_article(request, action_type, pk=None):
         obj.number_of_views += 1
 
         obj.save()
-
-        article_view_count = sum(
+        article_data = {}
+        article_data['article_view_count'] = sum(
             [x.number_of_views for x in ViewedArticles.objects.filter(
                 article=article)])
 
-        article_feedback_sum = sum(
+        total_feedback = sum(
             [x.feedback.count() for x in article.user_feedback.all()])
+
+        article_data['article_feedback_sum'] = total_feedback
+
+        f_set = Feedback.objects.all()\
+            .filter(userfeedback__article=article)\
+            .annotate(f_count=Count('userfeedback'))\
+            .order_by('-f_count', 'name')[:3]
+
+        article_data['feedback_set'] = []
+
+        for feedback in f_set:
+            percentage = 100.0*(float(feedback.f_count)/float(total_feedback))
+            percentage = int(percentage)
+            article_data['feedback_set'].append({
+                'obj': feedback,
+                'percentage': percentage
+            })
 
         comment_form = CommentForm(initial={'article': article})
 
@@ -185,8 +203,7 @@ def view_article(request, action_type, pk=None):
             {'article': article, 'action_type': action_type,
              'comment_form': comment_form, 'uf': uf,
              'feedback_set': Feedback.objects.all(),
-             'article_view_count': article_view_count,
-             'article_feedback_sum': article_feedback_sum}
+             'article_data': article_data}
              )
 
 

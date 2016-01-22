@@ -128,10 +128,10 @@ class Tag(models.Model):
 
 class Article(models.Model):
     author = models.ForeignKey(Author)
-    title = models.CharField(max_length=255)
+    title = models.CharField(max_length=60)
     headline = models.TextField(
-        verbose_name='Subheading', blank=True, null=True)
-    content = models.TextField(verbose_name='Article Body')
+        verbose_name='Subtitle', max_length=360, blank=True, null=True)
+    content = models.TextField(verbose_name='Body')
     published = models.BooleanField(default=False)
     tags = models.ManyToManyField(Tag)
     time_uploaded = models.DateTimeField(auto_now_add=True)

@@ -66,6 +66,10 @@ class ProfileForm(forms.ModelForm):
                    'follow_endorse_page_seen']
         fields = ['display_name', 'picture', 'crsid', 'college', 'subject',
                   'year', 'about']
+        help_texts = {
+            'display_name': 'This name will be displayed as your' +
+                            ' name everywhere on te website'
+        }
 
 
 class CommentForm(forms.ModelForm):
