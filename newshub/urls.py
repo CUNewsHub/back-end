@@ -18,6 +18,10 @@ urlpatterns = [
         r'^article/add/comment/$',
         'newshub.views.add_comment', name='add_comment'),
     url(
+        r'^article/make/featured/$',
+        'newshub.views.article_make_featured',
+        name='article_make_featured'),
+    url(
         r'^new/article/$',
         'newshub.views.new_article',
         name='new_article'),

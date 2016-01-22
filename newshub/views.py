@@ -717,3 +717,40 @@ def add_tag(request):
         data['success'] = False
         data['error_msg'] = "This tag already exists"
     return JsonResponse(data)
+
+
+@login_required
+@landing_pages_seen
+def article_make_featured(request):
+    if request.method != 'POST' and not request.is_ajax():
+        raise Http404
+
+    id_article = request.POST.get('id_article', None)
+
+    if id_article is None:
+        raise Http404
+
+    article = get_object_or_404(Article, pk=id_article)
+
+    if request.user != article.author.user:
+        raise Http404
+    data = {}
+
+    if article.featured:
+        article.featured = False
+        article.save()
+        data['success'] = True
+        data['feature'] = False
+        data['id_article'] = article.pk
+    else:
+        if article.author.article_set.filter(featured=True).count() >= 3:
+            data['success'] = False
+            data['error'] = "You have already featured 3 articles"
+        else:
+            article.featured = True
+            article.save()
+            data['success'] = True
+            data['feature'] = True
+            data['id_article'] = article.pk
+
+    return JsonResponse(data)

@@ -124,6 +124,10 @@ class SocietyDataForm(forms.ModelForm):
         model = Society
         exclude = ('user', 'admins', 'tag_page_seen',
                    'follow_endorse_page_seen')
+        help_texts = {
+            'facebook_link': 'The official facebook page of the society, if exists',
+            'website': 'The website of the society. Start with http://'
+        }
 
 
 class UpdateSocietyForm(SocietyDataForm):
