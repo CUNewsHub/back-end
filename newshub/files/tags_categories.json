@@ -6,7 +6,165 @@
 				"football",
 				"soccer",
 				"rugby",
-				"hockey"
+				"hockey",
+				"rowing",
+				"lacrosse",
+				"netball",
+				"blues",
+				"cricket",
+				"boat club",
+				"boat race",
+				"varsity match",
+				"tennis",
+				"squash"
+			]
+		}
+		{
+			"name": "Cambridge Politics",
+			"tags": [
+				"union",
+				"hack",
+				"hackery",
+				"feminism",
+				"journalism",
+				"CUSU",
+				"abortion",
+				"pro-life",
+				"pro-choice",
+				"free speech",
+				"street lights"
+			]
+		}
+		{
+			"name": "UK Politics",
+			"tags": [
+				"austerity",
+				"cuts",
+				"government",
+				"David Cameron",
+				"Conservatives",
+				"Labour",
+				"Liberal Democrats",
+				"Jeremy Corbyn",
+				"UKIP",
+				"EU referendum",
+				"immigration"
+			]
+		}
+		{
+			"name": "International Politics",
+			"tags": [
+				"Syria",
+				"ISIS",
+				"USA",
+				"Development",
+				"EU",
+				"Hillary Clinton",
+				"Obama",
+				"Rubio",
+				"Trump",
+				"Greece",
+				"Refugees"
+			]
+		}
+		{
+			"name": "Cambridge",
+			"tags": [
+				"Cindies",
+				"Life",
+				"Fez",
+				"Lolas",
+				"Guardies",
+				"Van of life",
+				"Van of death",
+				"college",
+				"drinking societies",
+				"JCR",
+				"hustings"
+				"Turf",
+				"the other place",
+				"varsity",
+				"Chist"
+			]
+		}
+		{
+			"name": "Business",
+			"tags": [
+				"economics",
+				"finance",
+				"banking",
+				"consulting",
+				"recession",
+				"trading",
+				"investment bank",
+				"careers",
+				"money",
+				"management",
+				"the city",
+				"London",
+				"eurozone",
+				"stocks",
+				"crisis"
+				
+				
+			]
+		}
+		{
+			"name": "Arts",
+			"tags": [
+				"theatre",
+				"ArcSoc",
+				"Fitz Museum",
+				"museum",
+				"Corpus Plaroom",
+				"illustration",
+				"review",
+				"film",
+				"music",
+				"bands",
+				"jazz"
+			]
+		}
+		{
+			"name": "Lifestyle",
+			"tags": [
+				"food",
+				"restaurants",
+				"review",
+				"clickbait",
+				"procrastination",
+				"travel",
+				"holiday",
+				"flying",
+				"airline",
+				"fishing",
+				"drinking",
+				"alcohol",
+				"beer",
+				"wine",
+				"pub",
+				"bar",
+				"cocktail",
+				"fashion",
+				"clothes",
+				"blogging",
+				
+			]
+		}
+		{
+			"name": "Subject",
+			"tags": [
+				"medicine",
+				"science",
+				"physics",
+				"chemistry",
+				"biology",
+				"english",
+				"architecture",
+				"HSPS",
+				"Arch & Anth",
+				"Materials",
+				"Languages"
 			]
 		}
 	]
