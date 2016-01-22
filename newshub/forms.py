@@ -41,13 +41,13 @@ class TagWidget(TitleSearchFieldMixin, ModelSelect2TagWidget):
 class NewArticleForm(forms.ModelForm):
     poll = forms.CharField(
         required=False,
-        label='Poll question',
+        label='Add a poll',
         help_text="If you want to create a poll for this article, type a question here")
 
     class Meta:
         model = Article
         fields = [
-            'title', 'header_picture', 'headline', 'content', 'tags', 'poll']
+            'title', 'header_picture', 'headline', 'content', 'poll', 'tags']
         exclude = ['author', 'likes', 'published']
         widgets = {
             'content': RedactorEditor(
@@ -136,3 +136,9 @@ class LandingTagsForm(forms.Form):
     tags = forms.MultipleChoiceField(
         required=False,
         widget=forms.CheckboxSelectMultiple, choices=CHOICES)
+
+
+class TagForm(forms.ModelForm):
+    class Meta:
+        model = Tag
+        exclude = ('user_set', 'approved')

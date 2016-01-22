@@ -10,7 +10,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.db.models import Count
 from .forms import NewArticleForm, ProfileForm, CommentForm, PollForm
 from .forms import ChoiceForm, SocietyForm, SocietyDataForm, UpdateSocietyForm
-from .forms import LandingTagsForm
+from .forms import LandingTagsForm, TagForm
 from .models import Article, Author, Follow, Endorsement, Profile, Poll, Tag
 from .models import ViewedArticles, Choice, Feedback, UserFeedback, Society
 from .decorators import landing_pages_seen
@@ -146,7 +146,7 @@ def new_article(request):
     return render(
         request,
         'newshub/article/add_edit.html',
-        {'form': form, 'add': True})
+        {'form': form, 'add': True, 'tag_form': TagForm()})
 
 
 @login_required
@@ -246,6 +246,7 @@ def edit_article(request, pk=None):
             'newshub/article/add_edit.html',
             {'form': form,
              'poll_form': PollForm(initial={'article': article}),
+             'tag_form': TagForm(),
              'add': False})
 
 
@@ -443,14 +444,20 @@ def article_poll_vote(request, pk):
     if request.method != 'POST':
         raise Http404
 
-    choice = get_object_or_404(Choice, pk=request.POST.get('choice', None))
-
     poll = get_object_or_404(Poll, pk=pk)
+
+    choice = request.POST.get('choice', None)
+
+    if choice is None:
+        return HttpResponseRedirect(
+            reverse('newshub:view_article', args=('home', poll.article.pk)))
+
+    choice = get_object_or_404(Choice, pk=choice)
 
     if choice not in poll.choice_set.all():
         raise Http404
 
-    if request.user in poll.voted.all():
+    if request.user in poll.voted.all() or choice is None:
         return HttpResponseRedirect(
             reverse('newshub:view_article', args=('home', poll.article.pk)))
 
@@ -687,3 +694,26 @@ def landing_pages_follow_endorse(request):
             return HttpResponseRedirect('/')
     return render(
         request, 'newshub/landing_pages/follow_endorse.html')
+
+
+@login_required
+@landing_pages_seen
+def add_tag(request):
+    if request.method != 'POST' and not request.is_ajax():
+        raise Http404
+
+    tag_form = TagForm(request.POST)
+
+    data = {}
+
+    if tag_form.is_valid():
+        tag = tag_form.save()
+        data['success'] = True
+        data['tag'] = {
+            'name': tag.name,
+            'id': tag.pk
+        }
+    else:
+        data['success'] = False
+        data['error_msg'] = "The form is invalid"
+    return JsonResponse(data)

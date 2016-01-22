@@ -111,5 +111,9 @@ urlpatterns = [
         r'^contact/us/$',
         TemplateView.as_view(
             template_name='newshub/management/contact_us.html'),
-        name='contact_us')
+        name='contact_us'),
+    url(
+        r'^add/tag/$',
+        'newshub.views.add_tag',
+        name='add_tag')
 ]
