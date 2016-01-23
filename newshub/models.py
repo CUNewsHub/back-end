@@ -142,6 +142,7 @@ class Article(models.Model):
         upload_to='article_header_pictures/%Y/%m/%d',
         blank=True, null=True)
     featured = models.BooleanField(default=False)
+    z = models.IntegerField(default=1)
 
     def __unicode__(self):
         return self.title

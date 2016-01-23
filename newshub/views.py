@@ -1,3 +1,4 @@
+import redis
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.http import JsonResponse
@@ -6,13 +7,20 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout as auth_logout, login as auth_login
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
-from django.db.models import Count
+from django.db.models import Count, Sum
 from .forms import NewArticleForm, ProfileForm, CommentForm, PollForm
 from .forms import ChoiceForm, SocietyForm, SocietyDataForm, UpdateSocietyForm
 from .forms import LandingTagsForm, TagForm, SocietyLoginForm
 from .models import Article, Author, Follow, Endorsement, Profile, Poll, Tag
 from .models import ViewedArticles, Choice, Feedback, UserFeedback, Society
 from .decorators import landing_pages_seen
+from django.conf import settings
+
+
+def _get_redis_instance():
+    r = redis.StrictRedis(
+        host='localhost', port=settings.NEWSHUB_REDIS_PORT)
+    return r
 
 
 @login_required
@@ -27,7 +35,14 @@ def home(request):
 @login_required
 @landing_pages_seen
 def top_stories(request):
-    articles = Article.objects.filter(published=True)
+    r = _get_redis_instance()
+    article_ids = r.lrange('top_stories', 0, -1)
+    if article_ids == []:
+        articles = Article.objects\
+            .annotate(viewed_count=Sum('viewedarticles__number_of_views'))\
+            .order_by('-viewed_count')[:10]
+    else:
+        articles = Article.objects.filter(id__in=article_ids)
 
     return render(request, 'newshub/index.html',
                   {'articles': articles, 'type': 'top-stories'})

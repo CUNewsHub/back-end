@@ -35,6 +35,8 @@ TAGS_FILE = 'tags_categories.json'
 FEEDBACK_FILE = 'feedback_options.json'
 COLLEGES_SUBJECTS_FILE = 'colleges_subjects.json'
 
+NEWSHUB_REDIS_PORT = secret_data.NEWSHUB_REDIS_PORT
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
 
