@@ -104,7 +104,8 @@ def update_profile(request, pk):
     if request.user != profile.user or request.method != 'POST':
         raise Http404
 
-    form = ProfileForm(request.POST, instance=profile)
+    form = ProfileForm(
+        request.POST or None, request.FILES or None, instance=profile)
 
     if form.is_valid():
         form.save()
