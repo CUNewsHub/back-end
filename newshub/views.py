@@ -612,7 +612,9 @@ def society_login(request):
             else:
                 raise Http404
         else:
-            raise Http404
+            return render(
+                request, 'newshub/society_login.html',
+                {'form': SocietyLoginForm(), 'login_error': True})
     else:
         return render(
             request, 'newshub/society_login.html',
