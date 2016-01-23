@@ -90,9 +90,9 @@ urlpatterns = [
         r'^society/login/$',
         'newshub.views.society_login',
         name='society_login'),
-    url(
-        r'^DB3B5A40DB893FA110A8EEAF41/$',
-        TemplateView.as_view(template_name='newshub/tmp_login.html')),
+    # url(
+    #    r'^DB3B5A40DB893FA110A8EEAF41/$',
+    #    TemplateView.as_view(template_name='newshub/tmp_login.html')),
     url(
         r'^landing/pages/tags/$',
         'newshub.views.landing_pages_tags',
