@@ -82,6 +82,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'newshub.middleware.NewshubSocialAuthMiddleware'
 )
 
 SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/'
