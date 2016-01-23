@@ -7,7 +7,7 @@ def create_profile(
         backend, user, response, details,
         is_new=False, *args, **kwargs):
 
-    url = 'http://graph.facebook.com/{0}/picture'.format(response['id'])
+    url = 'http://graph.facebook.com/{0}/picture?width=250&height=250'.format(response['id'])
 
     if is_new:
         try:
