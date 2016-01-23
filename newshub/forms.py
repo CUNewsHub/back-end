@@ -4,7 +4,7 @@ from redactor.widgets import RedactorEditor
 from django_select2.forms import ModelSelect2TagWidget, Select2MultipleWidget
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from django.utils.encoding import force_text
+from django.contrib.auth.forms import AuthenticationForm
 from django.db.models import Count
 
 
@@ -137,10 +137,33 @@ class UpdateSocietyForm(SocietyDataForm):
 
 
 class LandingTagsForm(forms.Form):
-    tags = Tag.objects.all().filter(approved=True) \
-              .annotate(article_num=Count('article')) \
-              .order_by('-article_num')[:20]
-    CHOICES = [(x.id, x) for x in tags]
+    LANDING_SET = [
+        "Finance",
+        "ISIS",
+        "Austerity",
+        "Development",
+        "EU",
+        "Refugees",
+        "Economics",
+        "Feminism",
+        "Free Speech",
+        "Football",
+        "Rugby",
+        "Food",
+        "Theatre",
+        "Conservatives",
+        "Labour",
+        "Cindies",
+        "CUSU",
+        "Film",
+        "Careers",
+        "Medicine",
+        "Science"]
+
+    tag_set = Tag.objects.all().filter(approved=True).filter(
+        name__in=LANDING_SET)
+
+    CHOICES = [(x.id, x) for x in tag_set]
 
     tags = forms.MultipleChoiceField(
         required=False,
@@ -151,3 +174,7 @@ class TagForm(forms.ModelForm):
     class Meta:
         model = Tag
         exclude = ('user_set', 'approved')
+
+
+class SocietyLoginForm(AuthenticationForm):
+    username = forms.CharField(max_length=254, label='Society ID')

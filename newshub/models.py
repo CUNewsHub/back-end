@@ -26,7 +26,7 @@ class Subject(models.Model):
 
 class LandingPages(models.Model):
     tag_page_seen = models.BooleanField(default=False)
-    follow_endorse_page_seen = models.BooleanField(default=False)
+    follow_endorse_page_seen = models.BooleanField(default=True)
 
     class Meta:
         abstract = True

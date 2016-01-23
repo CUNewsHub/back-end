@@ -6,11 +6,10 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout as auth_logout, login as auth_login
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
-from django.contrib.auth.forms import AuthenticationForm
 from django.db.models import Count
 from .forms import NewArticleForm, ProfileForm, CommentForm, PollForm
 from .forms import ChoiceForm, SocietyForm, SocietyDataForm, UpdateSocietyForm
-from .forms import LandingTagsForm, TagForm
+from .forms import LandingTagsForm, TagForm, SocietyLoginForm
 from .models import Article, Author, Follow, Endorsement, Profile, Poll, Tag
 from .models import ViewedArticles, Choice, Feedback, UserFeedback, Society
 from .decorators import landing_pages_seen
@@ -61,14 +60,19 @@ def logout(request):
 @landing_pages_seen
 def profile(request, pk=None):
     profile_form = None
+    society = None
+    if pk is None:
+        user = request.user
+    else:
+        user = get_object_or_404(User, pk=pk)
+
+    featured_article_set = user.author.article_set.filter(
+        featured=True, published=True)
     if pk is None:
         try:
             profile_form = ProfileForm(instance=request.user.profile)
-            user = request.user
-            society = None
         except Profile.DoesNotExist:
             try:
-                user = request.user
                 society = user.society
                 profile_form = UpdateSocietyForm(
                     instance=user.society,
@@ -78,12 +82,9 @@ def profile(request, pk=None):
                 raise Http404
     else:
         try:
-            user = get_object_or_404(User, pk=pk)
             profile_form = ProfileForm(instance=user.profile)
-            society = None
         except Profile.DoesNotExist:
             try:
-                user = user = get_object_or_404(User, pk=pk)
                 profile_form = UpdateSocietyForm(
                     instance=user.society,
                     initial={'email': user.email,
@@ -94,7 +95,8 @@ def profile(request, pk=None):
 
     return render(request, 'newshub/profile.html',
                   {'user': user, 'profile_form': profile_form,
-                   'society': society})
+                   'society': society,
+                   'featured_article_set': featured_article_set})
 
 
 @login_required
@@ -111,7 +113,7 @@ def update_profile(request, pk):
         form.save()
 
     return HttpResponseRedirect(
-        reverse('newshub:profile')+'#edit-profile')
+        reverse('newshub:profile'))
 
 
 @login_required
@@ -524,8 +526,8 @@ def create_society(request):
             new_user.backend = 'django.contrib.auth.backends.ModelBackend'
             auth_login(request, new_user)
 
-            return HttpResponseRedirect(reverse(
-                'newshub:profile', args=(new_user.pk,)))
+            return render(request, 'newshub/landing_pages/society.html',
+                          {'user': new_user})
     else:
         form = SocietyForm()
         society_data_form = SocietyDataForm()
@@ -614,7 +616,7 @@ def society_login(request):
     else:
         return render(
             request, 'newshub/society_login.html',
-            {'form': AuthenticationForm()})
+            {'form': SocietyLoginForm()})
 
 
 def _update_landing_pages_tags(user):
@@ -674,7 +676,8 @@ def landing_pages_tags(request):
             tag_list = request.POST.getlist('tags')
             _save_tags(request.user, tag_list)
             _update_landing_pages_tags(request.user)
-            return HttpResponseRedirect('/')
+            return HttpResponseRedirect(
+                reverse('newshub:profile')+'#edit-profile')
 
     return render(request, 'newshub/landing_pages/tags.html',
                   {'form': LandingTagsForm()})
@@ -684,7 +687,7 @@ def landing_pages_tags(request):
 def landing_pages_follow_endorse(request):
     tag_page_seen, follow_endorse_page_seen = _get_landing_pages(request.user)
     if follow_endorse_page_seen:
-        return HttpResponseRedirect('/')
+        return HttpResponseRedirect(reverse('newshub:profile')+'#edit-profile')
     else:
         if not tag_page_seen:
             return HttpResponseRedirect(reverse('newshub:landing_pages_tags'))
