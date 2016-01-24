@@ -73,7 +73,7 @@ class ProfileForm(forms.ModelForm):
                   'year', 'about']
         help_texts = {
             'display_name': 'This name will be displayed as your' +
-                            ' name everywhere on te website'
+                            ' name everywhere on the website'
         }
 
 
