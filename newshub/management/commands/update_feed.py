@@ -5,6 +5,7 @@ import datetime
 from newshub.views import _get_redis_instance as gri
 from django.core.management.base import BaseCommand
 from newshub.models import Profile, Article
+from django.db.models import Q
 
 
 def _time_decay_function(seconds):
@@ -17,7 +18,9 @@ def _time_decay_function(seconds):
 
 
 def _calculate_article_value(article):
-    views = sum([x.number_of_views for x in article.viewedarticles_set.all()])
+    viewed_set = article.viewedarticles_set.filter(
+        ~Q(user=article.author.user))
+    views = sum([x.number_of_views for x in viewed_set])
     likes = 20*article.likes.count()
     comments = 30*article.comment_set.count()
     society_factor = 1
