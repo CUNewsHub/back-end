@@ -19,7 +19,7 @@ def create_profile(
             display_name = user.first_name+' '+user.last_name
             profile = Profile(user=user, display_name=display_name)
             profile.picture.save(
-                '{0}_social.jpg'.format(user.username),
+                '{0}_social.jpg'.format(user.pk),
                 ContentFile(response.content))
             profile.save()
 
