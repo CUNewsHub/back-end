@@ -78,8 +78,6 @@ def _update_user_feed(redis, user):
         redis.lpush(
             'personalised_feed_'+str(user.pk), *[x[1] for x in article_set])
 
-    print article_set
-
 
 def _update_feed():
     r = gri()
@@ -87,6 +85,7 @@ def _update_feed():
         _update_user_feed(r, user)
 
     del r
+    print "Updated feed()"
 
 
 class Command(BaseCommand):
