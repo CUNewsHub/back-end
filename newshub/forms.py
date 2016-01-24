@@ -42,7 +42,8 @@ class NewArticleForm(forms.ModelForm):
     poll = forms.CharField(
         required=False,
         label='Add a poll',
-        help_text="If you want to create a poll for this article, type a question here")
+        help_text=("If you want to create a poll for this article, type a question here. "+
+            "Once you Save or Publish an article, you can add options."))
 
     class Meta:
         model = Article
@@ -89,6 +90,10 @@ class PollForm(forms.ModelForm):
         model = Poll
         exclude = ['voted']
         widgets = {'article': forms.HiddenInput()}
+        help_texts = {
+            'title': ("Insert the poll question here. You will be able to"+
+                " add options, after you click 'Add poll'")
+        }
 
 
 class ChoiceForm(forms.ModelForm):

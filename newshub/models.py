@@ -39,6 +39,7 @@ class Profile(LandingPages):
         ('II', 'Third Year'),
         ('III', 'Fourth Year'),
         ('M+', 'Masters'),
+        ('PostGrad', 'Postgraduate'),
         ('GRAD', 'Graduate'),
         ('N/A', 'N/A'),
     )

@@ -36,7 +36,6 @@ def home(request):
     return render(request, 'newshub/index.html',
                   {'articles': articles, 'type': 'home'})
 
-
 @login_required
 @landing_pages_seen
 def top_stories(request):
@@ -391,8 +390,8 @@ def article_add_poll(request):
         return HttpResponseRedirect(
             reverse('newshub:article_edit_poll', args=(poll.pk,)))
     else:
-        # TODO: error handling
-        pass
+        return HttpResponseRedirect(
+            reverse('newshub:edit_article', args=(request.POST['article'])))
 
 
 @login_required
