@@ -31,7 +31,7 @@ def _calculate_article_value(article):
     try:
         article.author.user.profile
     except Profile.DoesNotExist:
-        society_factor = 1.5
+        society_factor = 1
 
     dt = datetime.datetime.now(pytz.utc) - article.time_uploaded
 
