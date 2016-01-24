@@ -146,6 +146,7 @@ class Article(models.Model):
         blank=True, null=True)
     featured = models.BooleanField(default=False)
     z = models.IntegerField(default=1)
+    top_stories_value = models.FloatField(default=15.0)
 
     def __unicode__(self):
         return self.title

@@ -6,6 +6,10 @@ from newshub.views import _get_redis_instance as gri
 from django.core.management.base import BaseCommand
 from newshub.models import Profile, Article
 from django.db.models import Q
+from newshub.feed import initialise_category_vector
+from newshub.feed import get_occurrence_category_vector
+from newshub import models
+from django.contrib.auth.models import User
 
 
 def _time_decay_function(seconds):
@@ -40,23 +44,54 @@ def _calculate_article_value(article):
     return float(value)
 
 
+def _update_articles():
+    for article in Article.objects.filter(published=True):
+        article_value = _calculate_article_value(article)
+        article.top_stories_value = article_value
+        article.save()
+
+    print "Ran _update_articles() for top-stories"
+
+
+def _update_user_feed(redis, user):
+    try:
+        user_category_vector = eval(redis.get('category_vector_'+str(user.pk)))
+    except TypeError:
+        initialise_category_vector(redis, user, models)
+        user_category_vector = eval(redis.get('category_vector_'+str(user.pk)))
+
+    article_set = []
+
+    dot_product = 0.0
+    for article in Article.objects.filter(published=True):
+        occ_category_vector = get_occurrence_category_vector(article, models)
+
+        for k in occ_category_vector:
+            dot_product += occ_category_vector[k]*user_category_vector[k]
+
+        article_set.append((dot_product*article.top_stories_value, article.pk))
+
+    article_set.sort()
+
+    redis.delete('personalised_feed_'+str(user.pk))
+    if article_set != []:
+        redis.lpush(
+            'personalised_feed_'+str(user.pk), *[x[1] for x in article_set])
+
+    print article_set
+
+
+def _update_feed():
+    r = gri()
+    for user in User.objects.all():
+        _update_user_feed(r, user)
+
+    del r
+
+
 class Command(BaseCommand):
     help = 'Updating top-stories feed, and storing it in Redis'
 
     def handle(self, *args, **options):
-        r = gri()
-
-        article_set = []
-
-        for article in Article.objects.filter(published=True):
-            article_value = _calculate_article_value(article)
-            article_set.append((article_value, article.pk))
-
-        # sorting low to high
-        article_set.sort()
-        # delete the top stories
-        r.ltrim('top_stories', -1, 0)
-        # lpush, so it will first push the low values
-        r.lpush('top_stories', *[x[1] for x in article_set])
-
-        print "Ran update tags"
+        _update_articles()
+        _update_feed()

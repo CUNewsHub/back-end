@@ -7,26 +7,31 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout as auth_logout, login as auth_login
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
-from django.db.models import Count, Sum
+from django.db.models import Count
 from .forms import NewArticleForm, ProfileForm, CommentForm, PollForm
 from .forms import ChoiceForm, SocietyForm, SocietyDataForm, UpdateSocietyForm
 from .forms import LandingTagsForm, TagForm, SocietyLoginForm
 from .models import Article, Author, Follow, Endorsement, Profile, Poll, Tag
 from .models import ViewedArticles, Choice, Feedback, UserFeedback, Society
+import newshub.models as models
 from .decorators import landing_pages_seen
+from feed import initialise_category_vector, update_category_vector
+from feed import get_personalised_feed
 from django.conf import settings
 
 
 def _get_redis_instance():
-    r = redis.StrictRedis(
-        host='localhost', port=settings.NEWSHUB_REDIS_PORT)
+    r = redis.StrictRedis(host='localhost',
+                          port=settings.NEWSHUB_REDIS_PORT,
+                          db=0)
     return r
 
 
 @login_required
 @landing_pages_seen
 def home(request):
-    articles = Article.objects.filter(published=True)
+    articles = get_personalised_feed(
+        _get_redis_instance(), request.user, models)
 
     return render(request, 'newshub/index.html',
                   {'articles': articles, 'type': 'home'})
@@ -35,14 +40,8 @@ def home(request):
 @login_required
 @landing_pages_seen
 def top_stories(request):
-    r = _get_redis_instance()
-    article_ids = r.lrange('top_stories', 0, -1)
-    if article_ids == []:
-        articles = Article.objects\
-            .annotate(viewed_count=Sum('viewedarticles__number_of_views'))\
-            .order_by('-viewed_count')[:10]
-    else:
-        articles = [Article.objects.get(pk=x) for x in article_ids]
+    articles = Article.objects.filter(published=True)\
+                      .order_by('-top_stories_value')
 
     return render(request, 'newshub/index.html',
                   {'articles': articles, 'type': 'top-stories'})
@@ -142,6 +141,10 @@ def new_article(request):
             article.save()
             form.save_m2m()
 
+            # updating redis
+            update_category_vector(
+                _get_redis_instance(), request.user, article, 'write', models)
+
             poll_title = request.POST.get('poll', None)
 
             if poll_title is not None and poll_title != "":
@@ -180,6 +183,10 @@ def view_article(request, action_type, pk=None):
 
         obj, created = ViewedArticles.objects.get_or_create(
             user=request.user, article=article)
+
+        # updating redis
+        update_category_vector(
+            _get_redis_instance(), request.user, article, 'view', models)
 
         obj.number_of_views += 1
 
@@ -346,6 +353,8 @@ def action(request, action_type):
         else:
             article.likes.add(request.user)
             article.save()
+            update_category_vector(
+                _get_redis_instance(), request.user, article, 'like', models)
             created = True
 
         return JsonResponse({'created': created})
@@ -693,6 +702,8 @@ def landing_pages_tags(request):
             tag_list = request.POST.getlist('tags')
             _save_tags(request.user, tag_list)
             _update_landing_pages_tags(request.user)
+            initialise_category_vector(
+                _get_redis_instance(), request.user, models)
             return HttpResponseRedirect(
                 reverse('newshub:profile')+'#edit-profile')
 
