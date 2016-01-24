@@ -42,7 +42,7 @@ def top_stories(request):
             .annotate(viewed_count=Sum('viewedarticles__number_of_views'))\
             .order_by('-viewed_count')[:10]
     else:
-        articles = Article.objects.filter(id__in=article_ids)
+        articles = [Article.objects.get(pk=x) for x in article_ids]
 
     return render(request, 'newshub/index.html',
                   {'articles': articles, 'type': 'top-stories'})
