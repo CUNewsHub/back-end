@@ -63,7 +63,7 @@ def login(request):
     if not request.user.is_authenticated():
         return render(request, 'newshub/login.html')
     else:
-        return HttpResponseRedirect(reverse('newshub:home'))
+        return HttpResponseRedirect(reverse('newshub:top_stories'))
 
 
 def logout(request):

@@ -80,6 +80,9 @@ class Author(models.Model):
     def is_verified(self):
         return self.user.profile.crsid_is_verified
 
+    def __unicode__(self):
+        return self.user.firt_name+" "+self.user.last_name
+
 
 class TooManyEndorsementsError(Exception):
     def __init__(self, value):
