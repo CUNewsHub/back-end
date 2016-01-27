@@ -71,6 +71,7 @@ INSTALLED_APPS = (
     'widget_tweaks',
     'django_select2',
     'sorl.thumbnail',
+    'endless_pagination',
 
     'newshub',
 )
@@ -88,11 +89,11 @@ MIDDLEWARE_CLASSES = (
 )
 
 SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/'
-SOCIAL_AUTH_LOGIN_URL = '/login/'
+SOCIAL_AUTH_LOGIN_URL = '/'
 
 SOCIAL_AUTH_FACEBOOK_SCOPE = ['email']
 
-LOGIN_URL = '/login/'
+LOGIN_URL = '/'
 
 ROOT_URLCONF = 'src.urls'
 

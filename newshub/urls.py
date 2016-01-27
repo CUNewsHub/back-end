@@ -3,10 +3,10 @@ from django.conf.urls import url, include
 
 
 urlpatterns = [
-    url(r'^$', 'newshub.views.home', name='home'),
+    url(r'^personal-feed/$', 'newshub.views.home', name='home'),
     url(r'^top-stories/$', 'newshub.views.top_stories', name='top_stories'),
     url(r'^history/$', 'newshub.views.history', name='history'),
-    url(r'^login/$', 'newshub.views.login', name='login'),
+    url(r'^$', 'newshub.views.login', name='login'),
     url(r'^logout/$', 'newshub.views.logout', name='logout'),
     url(r'^profile/$', 'newshub.views.profile', name='profile'),
     url(r'^profile/(?P<pk>[0-9]+)/$', 'newshub.views.profile', name='profile'),

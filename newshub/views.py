@@ -26,7 +26,6 @@ def _get_redis_instance():
                           db=0)
     return r
 
-
 @login_required
 @landing_pages_seen
 def home(request):
@@ -61,7 +60,7 @@ def login(request):
     if not request.user.is_authenticated():
         return render(request, 'newshub/login.html')
     else:
-        return HttpResponseRedirect(reverse('newshub:top_stories'))
+        return home(request)
 
 
 def logout(request):
@@ -695,7 +694,7 @@ def _get_landing_pages(user):
 def landing_pages_tags(request):
     tag_page_seen, _ = _get_landing_pages(request.user)
     if tag_page_seen:
-        return HttpResponseRedirect('/')
+        return HttpResponseRedirect(reverse('newshub:home'))
     if request.method == 'POST':
         if request.POST['action'] == 'Next':
             tag_list = request.POST.getlist('tags')
@@ -722,7 +721,7 @@ def landing_pages_follow_endorse(request):
     if request.method == 'POST':
         if request.POST['action'] == 'Next':
             _update_landing_pages_follow_endorse(request.user)
-            return HttpResponseRedirect('/')
+            return HttpResponseRedirect(reverse('newshub:home'))
     return render(
         request, 'newshub/landing_pages/follow_endorse.html')
 
