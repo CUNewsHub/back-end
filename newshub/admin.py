@@ -15,6 +15,8 @@ class CategoryAdmin(admin.ModelAdmin):
 
 class ArticleAdmin(admin.ModelAdmin):
     fields = (
+        'author',
+        'published',
         'z',)
     list_display = (
         'title',
