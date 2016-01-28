@@ -5,26 +5,8 @@ from django_select2.forms import ModelSelect2TagWidget, Select2MultipleWidget
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import AuthenticationForm
-from django.db.models import Count
 
 
-# class TagWidget(ModelSelect2TagWidget):
-#     search_fields = [
-#         'name__icontains',
-#     ]
-
-#     queryset = Tag.objects.all()
-
-#     def value_from_datadict(self, data, files, name):
-#         values = super(TagWidget, self).value_from_datadict(data, files, name)
-#         qs = self.queryset.filter(**{'pk__in': list(values)})
-#         pks = set(force_text(getattr(o, 'pk')) for o in qs)
-#         cleaned_values = []
-#         for val in values:
-#             if force_text(val) not in pks:
-#                 val = self.queryset.create(name=val).pk
-#             cleaned_values.append(val)
-#         return cleaned_values
 class TitleSearchFieldMixin(object):
     search_fields = [
         'name__icontains'
@@ -42,8 +24,10 @@ class NewArticleForm(forms.ModelForm):
     poll = forms.CharField(
         required=False,
         label='Add a poll',
-        help_text=("If you want to create a poll for this article, type a question here. "+
-            "Once you Save or Publish an article, you can add options."))
+        help_text=("If you want to create a poll for this article, type a " +
+                   "question here. " +
+                   "Once you Save or Publish an article, you can add options.")
+    )
 
     class Meta:
         model = Article
@@ -66,12 +50,14 @@ class NewArticleForm(forms.ModelForm):
 
 
 class ProfileForm(forms.ModelForm):
+    email = forms.EmailField()
+
     class Meta:
         model = Profile
-        exclude = ['user', 'crsid_is_verified', 'tag_page_seen', 
+        exclude = ['user', 'crsid_is_verified', 'tag_page_seen',
                    'follow_endorse_page_seen']
-        fields = ['display_name', 'picture', 'crsid', 'college', 'subject',
-                  'year', 'about']
+        fields = ['display_name', 'picture', 'email', 'crsid', 'college',
+                  'subject', 'year', 'about']
         help_texts = {
             'display_name': 'This name will be displayed as your' +
                             ' name everywhere on the website'
@@ -91,8 +77,8 @@ class PollForm(forms.ModelForm):
         exclude = ['voted']
         widgets = {'article': forms.HiddenInput()}
         help_texts = {
-            'title': ("Insert the poll question here. You will be able to"+
-                " add options, after you click 'Add poll'")
+            'title': ("Insert the poll question here. You will be able to" +
+                      " add options, after you click 'Add poll'")
         }
 
 
@@ -130,7 +116,8 @@ class SocietyDataForm(forms.ModelForm):
         exclude = ('user', 'admins', 'tag_page_seen',
                    'follow_endorse_page_seen')
         help_texts = {
-            'facebook_link': 'The official facebook page of the society, if exists',
+            'facebook_link': ('The official facebook page of the society,' +
+                              ' if exists'),
             'website': 'The website of the society. Start with http://'
         }
 

@@ -26,6 +26,7 @@ def _get_redis_instance():
                           db=0)
     return r
 
+
 @login_required
 @landing_pages_seen
 def home(request):
@@ -34,6 +35,7 @@ def home(request):
 
     return render(request, 'newshub/index.html',
                   {'articles': articles, 'type': 'home'})
+
 
 @login_required
 @landing_pages_seen
@@ -65,7 +67,7 @@ def login(request):
 
 def logout(request):
     auth_logout(request)
-    return HttpResponseRedirect(reverse('newshub:home'))
+    return HttpResponseRedirect(reverse('newshub:login'))
 
 
 @login_required
@@ -82,7 +84,9 @@ def profile(request, pk=None):
         featured=True, published=True)
     if pk is None:
         try:
-            profile_form = ProfileForm(instance=request.user.profile)
+            profile_form = ProfileForm(
+                instance=request.user.profile,
+                initial={'email': user.email})
         except Profile.DoesNotExist:
             try:
                 society = user.society
@@ -94,7 +98,9 @@ def profile(request, pk=None):
                 raise Http404
     else:
         try:
-            profile_form = ProfileForm(instance=user.profile)
+            profile_form = ProfileForm(
+                instance=user.profile,
+                initial={'email': user.email})
         except Profile.DoesNotExist:
             try:
                 profile_form = UpdateSocietyForm(
@@ -123,6 +129,9 @@ def update_profile(request, pk):
 
     if form.is_valid():
         form.save()
+        user = profile.user
+        user.email = form.cleaned_data['email']
+        user.save()
 
     return HttpResponseRedirect(
         reverse('newshub:profile'))
@@ -207,7 +216,8 @@ def view_article(request, action_type, pk=None):
         article_data['feedback_set'] = []
 
         for feedback in f_set:
-            percentage = 100.0*(float(feedback.f_count)/float(total_feedback))
+            percentage = 100.0 * (
+                float(feedback.f_count) / float(total_feedback))
             percentage = int(percentage)
             article_data['feedback_set'].append({
                 'obj': feedback,
@@ -227,7 +237,7 @@ def view_article(request, action_type, pk=None):
              'comment_form': comment_form, 'uf': uf,
              'feedback_set': Feedback.objects.all(),
              'article_data': article_data}
-             )
+        )
 
 
 @login_required
@@ -596,10 +606,10 @@ def update_society(request, pk):
         return render(
             request, 'newshub/profile.html',
             {'user': request.user,
-            'society': society, 'society_form': society_form})
+             'society': society, 'society_form': society_form})
 
     return HttpResponseRedirect(
-        reverse('newshub:profile')+'#edit-profile')
+        reverse('newshub:profile') + '#edit-profile')
 
 
 @login_required
@@ -703,7 +713,7 @@ def landing_pages_tags(request):
             initialise_category_vector(
                 _get_redis_instance(), request.user, models)
             return HttpResponseRedirect(
-                reverse('newshub:profile')+'#edit-profile')
+                reverse('newshub:profile') + '#edit-profile')
 
     return render(request, 'newshub/landing_pages/tags.html',
                   {'form': LandingTagsForm()})
@@ -713,7 +723,8 @@ def landing_pages_tags(request):
 def landing_pages_follow_endorse(request):
     tag_page_seen, follow_endorse_page_seen = _get_landing_pages(request.user)
     if follow_endorse_page_seen:
-        return HttpResponseRedirect(reverse('newshub:profile')+'#edit-profile')
+        return HttpResponseRedirect(
+            reverse('newshub:home'))
     else:
         if not tag_page_seen:
             return HttpResponseRedirect(reverse('newshub:landing_pages_tags'))

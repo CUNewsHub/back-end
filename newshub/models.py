@@ -25,7 +25,7 @@ class Subject(models.Model):
 
 
 class LandingPages(models.Model):
-    tag_page_seen = models.BooleanField(default=False)
+    tag_page_seen = models.BooleanField(default=True)
     follow_endorse_page_seen = models.BooleanField(default=True)
 
     class Meta:
@@ -82,7 +82,7 @@ class Author(models.Model):
         return self.user.profile.crsid_is_verified
 
     def __unicode__(self):
-        return self.user.first_name+" "+self.user.last_name
+        return self.user.first_name + " " + self.user.last_name
 
 
 class TooManyEndorsementsError(Exception):

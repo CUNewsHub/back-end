@@ -1,5 +1,5 @@
 from django.views.generic import TemplateView
-from django.conf.urls import url, include
+from django.conf.urls import url
 
 
 urlpatterns = [
@@ -11,7 +11,8 @@ urlpatterns = [
     url(r'^profile/$', 'newshub.views.profile', name='profile'),
     url(r'^profile/(?P<pk>[0-9]+)/$', 'newshub.views.profile', name='profile'),
     url(
-        r'view/article/(?P<action_type>history|home|top-stories)/(?P<pk>[0-9]+)/$',
+        (r'view/article/(?P<action_type>history|home|top-stories)' +
+         '/(?P<pk>[0-9]+)/$'),
         'newshub.views.view_article',
         name='view_article'),
     url(
