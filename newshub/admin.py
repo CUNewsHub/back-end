@@ -14,28 +14,26 @@ class CategoryAdmin(admin.ModelAdmin):
 
 
 class ArticleAdmin(admin.ModelAdmin):
+    fields = (
+        'z',)
     list_display = (
         'title',
         'author',
         'distinct_views',
         'total_views',
-        'likes',
+        'like_count',
         'time_uploaded',
-        'published')
+        'z',
+        'published',)
     list_filter = ('published',)
     list_display_links = ('title', 'author',)
+    list_editable = ('z',)
 
     def get_queryset(self, request):
         qs = super(ArticleAdmin, self).get_queryset(request)
         return qs.annotate(distinct_v=Count('viewedarticles', distinct=True))\
-                 .annotate(like_c=Count('likes', distinct=True))\
-                 .annotate(total_v=Sum('viewedarticles__number_of_views',
-                           distinct=True))
-
-    def likes(self, obj):
-        return obj.like_c
-
-    likes.admin_order_field = 'like_c'
+                 .annotate(total_v=Sum(
+                     'viewedarticles__number_of_views', distinct=True))
 
     def distinct_views(self, obj):
         return obj.distinct_v
@@ -47,9 +45,23 @@ class ArticleAdmin(admin.ModelAdmin):
 
     total_views.admin_order_field = 'total_v'
 
+    def like_count(self, obj):
+        return obj.likes.count()
+
 
 class AuthorAdmin(admin.ModelAdmin):
-    pass
+    list_display = (
+        '__unicode__',
+        'article_num')
+
+    def get_queryset(self, request):
+        qs = super(AuthorAdmin, self).get_queryset(request)
+        return qs.annotate(a_num=Count('article'))
+
+    def article_num(self, obj):
+        return obj.article_set.count()
+
+    article_num.admin_order_field = '-a_num'
 
 
 admin.site.register(Author, AuthorAdmin)
