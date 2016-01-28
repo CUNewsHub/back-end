@@ -27,8 +27,8 @@ class ArticleAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         qs = super(ArticleAdmin, self).get_queryset(request)
-        return qs.annotate(distinct_v=Count('viewedarticles'))\
-                 .annotate(like_c=Count('likes'))\
+        return qs.annotate(distinct_v=Count('viewedarticles', distinct=True))\
+                 .annotate(like_c=Count('likes', distinct=True))\
                  .annotate(total_v=Sum('viewedarticles__number_of_views'))
 
     def likes(self, obj):
