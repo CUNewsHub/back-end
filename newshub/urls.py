@@ -8,10 +8,10 @@ urlpatterns = [
     url(r'^history/$', 'newshub.views.history', name='history'),
     url(r'^$', 'newshub.views.login', name='login'),
     url(r'^logout/$', 'newshub.views.logout', name='logout'),
-    url(r'^profile/$', 'newshub.views.profile', name='profile'),
+    url(r'^profile/$', 'newshub.views.profile', name='self_profile'),
     url(r'^profile/(?P<pk>[0-9]+)/$', 'newshub.views.profile', name='profile'),
     url(
-        (r'view/article/(?P<action_type>history|home|top-stories)' +
+        (r'view/article/(?P<action_type>[\w\W]+)' +
          '/(?P<pk>[0-9]+)/$'),
         'newshub.views.view_article',
         name='view_article'),
@@ -130,5 +130,15 @@ urlpatterns = [
         name='delete_comment'),
     url(r'^edit/comment/$',
         'newshub.views.edit_comment',
-        name='edit_comment')
+        name='edit_comment'),
+    url(r'^society/change/password/$',
+        'newshub.views.society_change_password',
+        name='society_change_password'),
+    url(r'^society/change/password/confirmation/$',
+        TemplateView.as_view(
+            template_name='newshub/society_change_password_confirmation.html'),
+        name='society_change_password_confirmation'),
+    url(r'^category/(?P<category>[\w\W]+)/$',
+        'newshub.views.articles_by_category',
+        name='articles_by_category')
 ]

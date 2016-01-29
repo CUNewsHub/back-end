@@ -5,7 +5,8 @@ from django.http import JsonResponse
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout as auth_logout, login as auth_login
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate, update_session_auth_hash
+from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.models import User
 from django.db.models import Count
 from .forms import NewArticleForm, ProfileForm, CommentForm, PollForm
@@ -13,7 +14,7 @@ from .forms import ChoiceForm, SocietyForm, SocietyDataForm, UpdateSocietyForm
 from .forms import LandingTagsForm, TagForm, SocietyLoginForm
 from .models import Article, Author, Follow, Endorsement, Profile, Poll, Tag
 from .models import ViewedArticles, Choice, Feedback, UserFeedback, Society
-from .models import Comment
+from .models import Comment, Category
 import newshub.models as models
 from .decorators import landing_pages_seen
 from feed import initialise_category_vector, update_category_vector
@@ -38,7 +39,8 @@ def home(request):
         _get_redis_instance(), request.user, models)
 
     return render(request, 'newshub/index.html',
-                  {'articles': articles, 'type': 'home'})
+                  {'articles': articles, 'type': 'home',
+                   'categories': Category.objects.all()})
 
 
 @login_required
@@ -48,7 +50,8 @@ def top_stories(request):
                       .order_by('-top_stories_value')
 
     return render(request, 'newshub/index.html',
-                  {'articles': articles, 'type': 'top-stories'})
+                  {'articles': articles, 'type': 'top-stories',
+                   'categories': Category.objects.all()})
 
 
 @login_required
@@ -59,7 +62,8 @@ def history(request):
     articles = [x.article for x in viewed_set]
 
     return render(request, 'newshub/index.html',
-                  {'articles': articles, 'type': 'history'})
+                  {'articles': articles, 'type': 'history',
+                   'categories': Category.objects.all()})
 
 
 def login(request):
@@ -138,7 +142,7 @@ def update_profile(request, pk):
         user.save()
 
     return HttpResponseRedirect(
-        reverse('newshub:profile'))
+        reverse('newshub:self_profile'))
 
 
 @login_required
@@ -205,6 +209,10 @@ def view_article_logged_in(request, action_type, pk=None):
     if pk is None:
         raise Http404
     else:
+        category = None
+        if (action_type != 'home' or action_type != 'history' or
+                action_type != 'top-stories'):
+            category = get_object_or_404(Category, name=action_type)
         article = get_object_or_404(Article, pk=pk)
 
         if not article.published and article.author.user != request.user:
@@ -258,7 +266,7 @@ def view_article_logged_in(request, action_type, pk=None):
             {'article': article, 'action_type': action_type,
              'comment_form': comment_form, 'uf': uf,
              'feedback_set': Feedback.objects.all(),
-             'article_data': article_data}
+             'article_data': article_data, 'category': category}
         )
 
 
@@ -605,7 +613,7 @@ def societies_login(request, pk):
 
     auth_login(request, s.user)
 
-    return HttpResponseRedirect(reverse('newshub:profile'))
+    return HttpResponseRedirect(reverse('newshub:self_profile'))
 
 
 @login_required
@@ -631,7 +639,7 @@ def update_society(request, pk):
              'society': society, 'society_form': society_form})
 
     return HttpResponseRedirect(
-        reverse('newshub:profile') + '#edit-profile')
+        reverse('newshub:self_profile') + '#edit-profile')
 
 
 @login_required
@@ -660,7 +668,8 @@ def society_login(request):
                 auth_login(request, user)
                 next_ = request.GET.get('next', None)
                 if next_ is None:
-                    return HttpResponseRedirect(reverse('newshub:profile'))
+                    return HttpResponseRedirect(
+                        reverse('newshub:self_profile'))
                 else:
                     return HttpResponseRedirect(next)
             else:
@@ -735,7 +744,7 @@ def landing_pages_tags(request):
             initialise_category_vector(
                 _get_redis_instance(), request.user, models)
             return HttpResponseRedirect(
-                reverse('newshub:profile') + '#edit-profile')
+                reverse('newshub:self_profile') + '#edit-profile')
 
     return render(request, 'newshub/landing_pages/tags.html',
                   {'form': LandingTagsForm()})
@@ -862,3 +871,40 @@ def edit_comment(request):
                       {'comment': comment})
     else:
         raise Http404
+
+
+@login_required
+@landing_pages_seen
+def society_change_password(request):
+    try:
+        request.user.society
+        if request.method == 'POST':
+            form = PasswordChangeForm(request.user, data=request.POST)
+            if form.is_valid():
+                form.save()
+                update_session_auth_hash(request, form.user)
+                return HttpResponseRedirect(
+                    reverse('newshub:society_change_password_confirmation'))
+        else:
+            form = PasswordChangeForm(request.user)
+        data = {
+            'form': form
+        }
+
+        return render(request, 'newshub/society_change_password.html', data)
+    except Society.DoesNotExist:
+        raise Http404
+
+
+@login_required
+@landing_pages_seen
+def articles_by_category(request, category):
+    category = get_object_or_404(Category, name=category)
+
+    articles = Article.objects.filter(tags__category=category)\
+                              .order_by('-top_stories_value')
+
+    return render(request, 'newshub/index.html',
+                  {'articles': articles, 'type': category.name,
+                   'category': category,
+                   'categories': Category.objects.all()})
