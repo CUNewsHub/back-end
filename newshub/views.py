@@ -13,6 +13,7 @@ from .forms import ChoiceForm, SocietyForm, SocietyDataForm, UpdateSocietyForm
 from .forms import LandingTagsForm, TagForm, SocietyLoginForm
 from .models import Article, Author, Follow, Endorsement, Profile, Poll, Tag
 from .models import ViewedArticles, Choice, Feedback, UserFeedback, Society
+from .models import Comment
 import newshub.models as models
 from .decorators import landing_pages_seen
 from feed import initialise_category_vector, update_category_vector
@@ -816,3 +817,48 @@ def article_make_featured(request):
             data['id_article'] = article.pk
 
     return JsonResponse(data)
+
+
+@login_required
+@landing_pages_seen
+def delete_comment(request):
+    if request.method == 'POST' and request.is_ajax():
+        comment_pk = request.POST.get('comment_pk', None)
+        if comment_pk is None:
+            raise Http404
+        else:
+            comment = get_object_or_404(Comment, pk=comment_pk)
+            if comment.made_by == request.user:
+                comment.delete()
+                return JsonResponse({
+                    'success': True,
+                    'comment_pk': comment_pk})
+            else:
+                raise Http404
+    else:
+        raise Http404
+
+
+@login_required
+@landing_pages_seen
+def edit_comment(request):
+    if request.method == 'POST' and request.is_ajax():
+        comment_pk = request.POST.get('comment_pk', None)
+        comment_text = request.POST.get('comment_text', None)
+
+        if comment_pk is None:
+            raise Http404
+
+        if comment_text is None or comment_text == '':
+            raise Http404
+
+        comment = get_object_or_404(Comment, pk=comment_pk)
+        if comment.made_by != request.user:
+            raise Http404
+        comment.text = comment_text
+        comment.save()
+
+        return render(request, 'newshub/article/comment.html',
+                      {'comment': comment})
+    else:
+        raise Http404

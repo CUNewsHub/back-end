@@ -124,5 +124,11 @@ urlpatterns = [
     url(
         r'^add/tag/$',
         'newshub.views.add_tag',
-        name='add_tag')
+        name='add_tag'),
+    url(r'^delete/comment/$',
+        'newshub.views.delete_comment',
+        name='delete_comment'),
+    url(r'^edit/comment/$',
+        'newshub.views.edit_comment',
+        name='edit_comment')
 ]
