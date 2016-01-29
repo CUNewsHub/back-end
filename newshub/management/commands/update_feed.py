@@ -54,6 +54,8 @@ def _update_articles():
 
 
 def _update_user_feed(redis, user):
+    if redis is None:
+        return
     try:
         user_category_vector = eval(
             redis.get('category_vector_' + str(user.pk)))
