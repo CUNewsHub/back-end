@@ -16,6 +16,10 @@ urlpatterns = [
         'newshub.views.view_article',
         name='view_article'),
     url(
+        r'view/article/(?P<pk>[0-9]+)/$',
+        'newshub.views.view_article_outside',
+        name='view_article_outside'),
+    url(
         r'^article/add/comment/$',
         'newshub.views.add_comment', name='add_comment'),
     url(

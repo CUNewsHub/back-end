@@ -21,10 +21,13 @@ from django.conf import settings
 
 
 def _get_redis_instance():
-    r = redis.StrictRedis(host='localhost',
-                          port=settings.NEWSHUB_REDIS_PORT,
-                          db=0)
-    return r
+    if settings.NEWSHUB_REDIS_PORT is not None:
+        r = redis.StrictRedis(host='localhost',
+                              port=settings.NEWSHUB_REDIS_PORT,
+                              db=0)
+        return r
+    else:
+        return None
 
 
 @login_required
@@ -177,9 +180,27 @@ def new_article(request):
         {'form': form, 'add': True, 'tag_form': TagForm()})
 
 
+def view_article(request, action_type, pk=None):
+    if request.user.is_authenticated():
+        return view_article_logged_in(request, action_type, pk)
+    else:
+        return HttpResponseRedirect(
+            reverse('newshub:view_article_outside', args=(pk,)))
+
+
+def view_article_outside(request, pk):
+    if request.user.is_authenticated():
+        return HttpResponseRedirect(
+            reverse('newshub:view_article', args=('home', pk)))
+
+    article = get_object_or_404(Article, pk=pk)
+    return render(request, 'newshub/article/view.html',
+                  {'article': article, 'action_type': 'pre_view'})
+
+
 @login_required
 @landing_pages_seen
-def view_article(request, action_type, pk=None):
+def view_article_logged_in(request, action_type, pk=None):
     if pk is None:
         raise Http404
     else:

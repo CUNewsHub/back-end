@@ -59,6 +59,7 @@ def get_personalised_feed(redis, user, models):
                                          .order_by('-time_uploaded')
     if redis is None:
         return all_articles
+
     feed_ids = redis.lrange('personalised_feed_' + str(user.pk), 0, -1)
 
     if feed_ids == []:
