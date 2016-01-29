@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 """
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-from secret_data import *
 from pipeline import SOCIAL_AUTH_PIPELINE
 
 import os
@@ -35,7 +34,10 @@ TAGS_FILE = 'tags_categories.json'
 FEEDBACK_FILE = 'feedback_options.json'
 COLLEGES_SUBJECTS_FILE = 'colleges_subjects.json'
 
-NEWSHUB_REDIS_PORT = secret_data.NEWSHUB_REDIS_PORT
+if secret_data.REDIS_ACTIVE:
+    NEWSHUB_REDIS_PORT = secret_data.NEWSHUB_REDIS_PORT
+else:
+    NEWSHUB_REDIS_PORT = None
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
@@ -113,11 +115,12 @@ if DEBUG:
         MEDIA_ROOT = os.path.abspath(os.path.join(FRONTEND_BASE, 'media'))
 
     else:
-        FRONTEND_BASE = '/home/newshub/webapps/newshub_static/current'
+        FRONTEND_BASE = '/home/newshub/webapps/staging_newshub_static/current'
 
         STATIC_URL = '/static/current/static/'
         MEDIA_URL = '/static/current/media/'
-        MEDIA_ROOT = '/home/newshub/webapps/newshub_static/shared/media'
+        MEDIA_ROOT = ('/home/newshub/webapps/staging_newshub_static/' +
+                      'shared/media')
         STATIC_ROOT = os.path.abspath(os.path.join(FRONTEND_BASE, 'static'))
 else:
     ALLOWED_HOSTS = ['camnewshub.com', 'www.camnewshub.com']
