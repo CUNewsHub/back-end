@@ -210,8 +210,9 @@ def view_article_logged_in(request, action_type, pk=None):
         raise Http404
     else:
         category = None
-        if (action_type != 'home' or action_type != 'history' or
+        if (action_type != 'home' and action_type != 'history' and
                 action_type != 'top-stories'):
+
             category = get_object_or_404(Category, name=action_type)
         article = get_object_or_404(Article, pk=pk)
 
@@ -902,7 +903,8 @@ def articles_by_category(request, category):
     category = get_object_or_404(Category, name=category)
 
     articles = Article.objects.filter(tags__category=category)\
-                              .order_by('-top_stories_value')
+                              .order_by('-top_stories_value')\
+                              .distinct()
 
     return render(request, 'newshub/index.html',
                   {'articles': articles, 'type': category.name,
