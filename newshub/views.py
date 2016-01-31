@@ -20,6 +20,7 @@ from .decorators import landing_pages_seen
 from feed import initialise_category_vector, update_category_vector
 from feed import get_personalised_feed
 from django.conf import settings
+from django.db.models import Q
 
 
 def _get_redis_instance():
@@ -199,8 +200,13 @@ def view_article_outside(request, pk):
             reverse('newshub:view_article', args=('home', pk)))
 
     article = get_object_or_404(Article, pk=pk)
+    more_articles = Article.objects.order_by('-top_stories_value')\
+                                   .filter(~Q(pk=article.pk))[:5]
+
     return render(request, 'newshub/article/view.html',
-                  {'article': article, 'action_type': 'pre_view'})
+                  {'article': article, 'action_type': 'pre_view',
+                   'feedback_set': Feedback.objects.all(),
+                   'more_articles': more_articles})
 
 
 @login_required
@@ -537,9 +543,9 @@ def article_poll_vote(request, pk):
         reverse('newshub:view_article', args=('home', poll.article.pk)))
 
 
-@login_required
-@landing_pages_seen
 def article_add_feedback(request, a_id, f_id):
+    if not request.user.is_authenticated():
+        return HttpResponse('notauth')
     if a_id is None or f_id is None:
         raise Http404
 

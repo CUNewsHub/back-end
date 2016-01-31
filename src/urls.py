@@ -21,6 +21,7 @@ from .secret_data import DEVELOPMENT
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
+    url(r'^admin_tools/', include('admin_tools.urls')),
     url('', include('social.apps.django_app.urls', namespace='social')),
     url('', include('newshub.urls', namespace='newshub')),
     url(r'^tinymce/', include('tinymce.urls')),
