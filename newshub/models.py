@@ -1,3 +1,4 @@
+import re
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import RegexValidator
@@ -148,9 +149,24 @@ class Article(models.Model):
     featured = models.BooleanField(default=False)
     z = models.IntegerField(default=1)
     top_stories_value = models.FloatField(default=15.0)
+    url_text = models.CharField(
+        max_length=60, unique=True, null=True, blank=True)
 
     def __unicode__(self):
         return self.title
+
+    def generate_url_text(self):
+        url_text = self.title.lower()
+        # sub several spaces to one
+        url_text = re.sub(r'[\ ]+', ' ', url_text)
+        url_text = re.sub(r'[^0-9a-z\ ]+', '', url_text)
+        url_text = url_text.replace(' ', '-')
+
+        return url_text
+
+    def save(self, *args, **kwargs):
+        super(Article, self).save(*args, **kwargs)
+        self.url_text = self.generate_url_text()
 
 
 class ViewedArticles(models.Model):

@@ -12,11 +12,11 @@ urlpatterns = [
     url(r'^profile/(?P<pk>[0-9]+)/$', 'newshub.views.profile', name='profile'),
     url(
         (r'view/article/(?P<action_type>[\w\W]+)' +
-         '/(?P<pk>[0-9]+)/$'),
+         '/(?P<pk>[0-9a-z\-]+)/$'),
         'newshub.views.view_article',
         name='view_article'),
     url(
-        r'view/article/(?P<pk>[0-9]+)/$',
+        r'view/article/(?P<pk>[0-9a-z\-]+)/$',
         'newshub.views.view_article_outside',
         name='view_article_outside'),
     url(
@@ -31,7 +31,7 @@ urlpatterns = [
         'newshub.views.new_article',
         name='new_article'),
     url(
-        r'^edit/article/(?P<pk>[0-9]+)/$',
+        r'^edit/article/(?P<pk>[0-9a-z\-]+)/$',
         'newshub.views.edit_article',
         name='edit_article'),
     url(

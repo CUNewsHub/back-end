@@ -199,7 +199,14 @@ def view_article_outside(request, pk):
         return HttpResponseRedirect(
             reverse('newshub:view_article', args=('home', pk)))
 
-    article = get_object_or_404(Article, pk=pk)
+    try:
+        article = Article.objects.get(url_text=pk)
+    except Article.DoesNotExist:
+        article = get_object_or_404(Article, pk=pk)
+        article.url_text = article.generate_url_text()
+        article.save()
+        return HttpResponseRedirect(
+            reverse('newshub:view_article_outside', args=(pk,)))
     more_articles = Article.objects.order_by('-top_stories_value')\
                                    .filter(~Q(pk=article.pk))[:5]
 
@@ -220,7 +227,15 @@ def view_article_logged_in(request, action_type, pk=None):
                 action_type != 'top-stories'):
 
             category = get_object_or_404(Category, name=action_type)
-        article = get_object_or_404(Article, pk=pk)
+        try:
+            article = Article.objects.get(url_text=pk)
+        except Article.DoesNotExist:
+            article = get_object_or_404(Article, pk=pk)
+            article.url_text = article.generate_url_text()
+            article.save()
+            return HttpResponseRedirect(
+                reverse('newshub:view_article',
+                        args=(action_type, article.url_text,)))
 
         if not article.published and article.author.user != request.user:
             raise Http404
@@ -280,7 +295,15 @@ def view_article_logged_in(request, action_type, pk=None):
 @login_required
 @landing_pages_seen
 def edit_article(request, pk=None):
-    article = get_object_or_404(Article, pk=pk)
+    try:
+        article = Article.objects.get(url_text=pk)
+    except Article.DoesNotExist:
+        article = get_object_or_404(Article, pk=pk)
+        article.url_text = article.generate_url_text()
+        article.save()
+        return HttpResponseRedirect(
+            reverse('newshub:edit_article',
+                    args=(article.url_text,)))
 
     if article.author.user != request.user:
         raise Http404
