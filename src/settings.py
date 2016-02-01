@@ -78,6 +78,7 @@ INSTALLED_APPS = (
     'endless_pagination',
 
     'newshub',
+    'tracking'
 )
 
 MIDDLEWARE_CLASSES = (
@@ -87,6 +88,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
+    'tracking.middleware.VisitorTrackingMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
