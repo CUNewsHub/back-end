@@ -932,6 +932,7 @@ def articles_by_category(request, category):
     category = get_object_or_404(Category, name=category)
 
     articles = Article.objects.filter(tags__category=category)\
+                              .filter(published=True)\
                               .order_by('-top_stories_value')\
                               .distinct()
 
