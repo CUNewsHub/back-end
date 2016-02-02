@@ -208,6 +208,7 @@ def view_article_outside(request, pk):
         return HttpResponseRedirect(
             reverse('newshub:view_article_outside', args=(pk,)))
     more_articles = Article.objects.order_by('-top_stories_value')\
+                                   .filter(published=True)\
                                    .filter(~Q(pk=article.pk))[:5]
 
     return render(request, 'newshub/article/view.html',
