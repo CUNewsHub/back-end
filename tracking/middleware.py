@@ -45,15 +45,29 @@ class VisitorTrackingMiddleware(object):
         session_key = request.session.session_key
 
         if request.path.startswith(self.ARTICLE_VIEW_PREFIX):
-            opv, created = OutsideArticleVisitor.objects.get_or_create(
-                session_key=session_key)
-
-            if created:
-                opv.entry_point = request.path
-                opv.user_agent = user_agent
-                opv.ip_address = ip_address
+            opv_list = OutsideArticleVisitor.objects.filter(
+                ip_address=ip_address, user_agent=user_agent)
+            if opv_list.count() == 1:
+                opv = opv_list[0]
+                opv.session_key = session_key
                 opv.save()
-                return
+            elif opv_list.count() == 0:
+                opv, created = OutsideArticleVisitor.objects.get_or_create(
+                    session_key=session_key)
+
+                if created:
+                    opv.entry_point = request.path
+                    opv.user_agent = user_agent
+                    opv.ip_address = ip_address
+                    opv.save()
+                    return
+            else:
+                opv = opv_list.order_by('-session_start')[0]
+                opv.session_key = session_key
+                opv.save()
+
+                for duplicate in opv_list.order_by('-session_start')[1:]:
+                    duplicate.delete()
 
         elif request.path.startswith(self.LOGIN_PREFIX):
             try:
