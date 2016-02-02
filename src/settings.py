@@ -76,6 +76,7 @@ INSTALLED_APPS = (
     'django_select2',
     'sorl.thumbnail',
     'endless_pagination',
+    'dbbackup',
 
     'newshub',
     'tracking'
@@ -104,6 +105,8 @@ LOGIN_URL = '/'
 
 ROOT_URLCONF = 'src.urls'
 
+DBBACKUP_STORAGE = 'dbbackup.storage.filesystem_storage'
+
 if DEBUG:
     if secret_data.DEVELOPMENT:
         FRONTEND_BASE = os.path.abspath(os.path.join(
@@ -112,6 +115,9 @@ if DEBUG:
         STATICFILES_DIRS = (
             os.path.abspath(os.path.join(FRONTEND_BASE, 'static')),
         )
+
+        DBBACKUP_STORAGE_OPTIONS = {
+            'location': os.path.join(BASE_DIR, 'dbbackup')}
 
         STATIC_URL = '/static/'
         MEDIA_URL = '/media/'
@@ -127,6 +133,8 @@ if DEBUG:
         MEDIA_ROOT = ('/home/newshub/webapps/staging_newshub_static/' +
                       'shared/media')
         STATIC_ROOT = os.path.abspath(os.path.join(FRONTEND_BASE, 'static'))
+        DBBACKUP_STORAGE_OPTIONS = {
+            'location': '/home/newshub/webapps/newshub_staging/dbbackup'}
 else:
     ALLOWED_HOSTS = ['camnewshub.com', 'www.camnewshub.com']
     FRONTEND_BASE = '/home/newshub/webapps/newshub_static/current'
@@ -135,6 +143,8 @@ else:
     MEDIA_URL = '/static/current/media/'
     MEDIA_ROOT = '/home/newshub/webapps/newshub_static/shared/media'
     STATIC_ROOT = os.path.abspath(os.path.join(FRONTEND_BASE, 'static'))
+    DBBACKUP_STORAGE_OPTIONS = {
+        'location': '/home/newshub/webapps/newshub/dbbackup'}
 
 
 # TINYMCE CONFIG
