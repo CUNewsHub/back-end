@@ -2,7 +2,7 @@ import re
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import RegexValidator
-
+from redactor.fields import RedactorField
 
 class College(models.Model):
     name = models.CharField(max_length=63)
@@ -136,7 +136,14 @@ class Article(models.Model):
     title = models.CharField(max_length=60)
     headline = models.TextField(
         verbose_name='Subtitle', max_length=360, blank=True, null=True)
-    content = models.TextField(verbose_name='Body')
+    content = RedactorField(
+        verbose_name='Body',
+        redactor_options={'buttons': [
+            'formatting', 'bold', 'italic', 'deleted',
+            'list', 'link', 'horizontalrule', 'orderedlist',
+            'unorderedlist', 'image']},
+        allow_file_upload=True,
+        allow_image_upload=True)
     published = models.BooleanField(default=False)
     tags = models.ManyToManyField(Tag)
     time_uploaded = models.DateTimeField(auto_now_add=True)

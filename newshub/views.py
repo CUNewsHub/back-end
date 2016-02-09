@@ -5,13 +5,14 @@ from django.http import JsonResponse
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout as auth_logout, login as auth_login
-from django.contrib.auth import authenticate, update_session_auth_hash
-from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.forms import PasswordChangeForm, AuthenticationForm
 from django.contrib.auth.models import User
 from django.db.models import Count
 from .forms import NewArticleForm, ProfileForm, CommentForm, PollForm
 from .forms import ChoiceForm, SocietyForm, SocietyDataForm, UpdateSocietyForm
-from .forms import LandingTagsForm, TagForm, SocietyLoginForm
+from .forms import LandingTagsForm, TagForm
+from .forms import ProfileCreationForm
 from .models import Article, Author, Follow, Endorsement, Profile, Poll, Tag
 from .models import ViewedArticles, Choice, Feedback, UserFeedback, Society
 from .models import Comment, Category
@@ -69,7 +70,18 @@ def history(request):
 
 def login(request):
     if not request.user.is_authenticated():
-        return render(request, 'newshub/login.html')
+        if request.method == 'POST':
+            form = AuthenticationForm(None, request.POST or None)
+            next_ = request.GET.get('next', reverse('newshub:home'))
+
+            if form.is_valid():
+                auth_login(request, form.get_user())
+                return HttpResponseRedirect(next_)
+        else:
+            form = AuthenticationForm()
+
+        return render(request, 'newshub/login.html',
+                      {'form': form})
     else:
         return home(request)
 
@@ -689,32 +701,6 @@ def articles_by_tags(request, tag_name):
                   {'articles': articles, 'type': 'home'})
 
 
-def society_login(request):
-    if request.method == 'POST':
-        username = request.POST['username']
-        password = request.POST['password']
-        user = authenticate(username=username, password=password)
-        if user is not None:
-            if user.is_active:
-                auth_login(request, user)
-                next_ = request.GET.get('next', None)
-                if next_ is None:
-                    return HttpResponseRedirect(
-                        reverse('newshub:self_profile'))
-                else:
-                    return HttpResponseRedirect(next)
-            else:
-                raise Http404
-        else:
-            return render(
-                request, 'newshub/society_login.html',
-                {'form': SocietyLoginForm(), 'login_error': True})
-    else:
-        return render(
-            request, 'newshub/society_login.html',
-            {'form': SocietyLoginForm()})
-
-
 def _update_landing_pages_tags(user):
     try:
         profile = user.profile
@@ -941,3 +927,25 @@ def articles_by_category(request, category):
                   {'articles': articles, 'type': category.name,
                    'category': category,
                    'categories': Category.objects.all()})
+
+
+def register(request):
+    if request.method == 'POST':
+        form = ProfileCreationForm(request.POST, request.FILES)
+        if form.is_valid():
+            user = form.save()
+            Profile.objects.create(
+                user=user, picture=form.cleaned_data['profile_picture'])
+            Author.objects.create(user=user)
+
+            user.backend = 'django.contrib.auth.backends.ModelBackend'
+            auth_login(request, user)
+
+            return HttpResponseRedirect(reverse('newshub:home'))
+    else:
+        form = ProfileCreationForm()
+
+    return render(
+        request,
+        'newshub/register.html',
+        {'form': form})

@@ -35,11 +35,6 @@ class NewArticleForm(forms.ModelForm):
             'title', 'header_picture', 'headline', 'content', 'poll', 'tags']
         exclude = ['author', 'likes', 'published']
         widgets = {
-            'content': RedactorEditor(
-                redactor_options={'buttons': [
-                    'formatting', 'bold', 'italic', 'deleted',
-                    'list', 'link', 'horizontalrule', 'orderedlist',
-                    'unorderedlist']}),
             'tags': Select2MultipleWidget
         }
 
@@ -110,6 +105,20 @@ class SocietyForm(UserCreationForm):
         return user
 
 
+class ProfileCreationForm(UserCreationForm):
+    def __init__(self, *args, **kwargs):
+        super(ProfileCreationForm, self).__init__(*args, **kwargs)
+
+        for key in self.fields:
+            self.fields[key].required = True
+
+    profile_picture = forms.ImageField()
+
+    class Meta:
+        model = User
+        fields = ('username', 'first_name', 'last_name', 'email')
+
+
 class SocietyDataForm(forms.ModelForm):
     class Meta:
         model = Society
@@ -166,7 +175,3 @@ class TagForm(forms.ModelForm):
     class Meta:
         model = Tag
         exclude = ('user_set', 'approved')
-
-
-class SocietyLoginForm(AuthenticationForm):
-    username = forms.CharField(max_length=254, label='Society ID')

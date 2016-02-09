@@ -156,6 +156,9 @@ TINYMCE_DEFAULT_CONFIG = {
     'width': '600'
 }
 
+REDACTOR_AUTH_DECORATOR = 'django.contrib.auth.decorators.login_required'
+REDACTOR_UPLOAD_HANDLER = 'redactor.handlers.DateDirectoryUploader'
+
 
 TEMPLATE_D = os.path.abspath(os.path.join(FRONTEND_BASE, 'templates'))
 

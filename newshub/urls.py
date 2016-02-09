@@ -91,10 +91,13 @@ urlpatterns = [
         r'^tags/(?P<tag_name>[\w|\W]+)/$',
         'newshub.views.articles_by_tags',
         name='article_by_tags'),
-    url(
-        r'^society/login/$',
-        'newshub.views.society_login',
-        name='society_login'),
+    # url(
+    #     r'^society/login/$',
+    #     'newshub.views.society_login',
+    #     name='society_login'),
+    # url(r'^user/email/login/$',
+    #     'newshub.views.user_email_login',
+    #     name='user_email_login'),
     # url(
     #    r'^DB3B5A40DB893FA110A8EEAF41/$',
     #    TemplateView.as_view(template_name='newshub/tmp_login.html')),
@@ -140,5 +143,8 @@ urlpatterns = [
         name='society_change_password_confirmation'),
     url(r'^category/(?P<category>[\w\W]+)/$',
         'newshub.views.articles_by_category',
-        name='articles_by_category')
+        name='articles_by_category'),
+    url(r'^register/$',
+        'newshub.views.register',
+        name='register')
 ]
