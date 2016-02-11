@@ -45,10 +45,12 @@ class ArticleAdmin(admin.ModelAdmin):
         return obj.distinct_v
 
     distinct_views.admin_order_field = 'distinct_v'
+    distinct_views.short_description = 'Distinct inside views'
 
     def total_views(self, obj):
-        return sum([
+        total_inside_views = sum([
             x.number_of_views for x in obj.viewedarticles_set.all()])
+        return total_inside_views + obj.outside_view_count
 
     def like_count(self, obj):
         return obj.likes.count()
