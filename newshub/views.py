@@ -222,6 +222,8 @@ def view_article_outside(request, pk):
     more_articles = Article.objects.order_by('-top_stories_value')\
                                    .filter(published=True)\
                                    .filter(~Q(pk=article.pk))[:5]
+    article.outside_view_count += 1
+    article.save()
 
     return render(request, 'newshub/article/view.html',
                   {'article': article, 'action_type': 'pre_view',
@@ -273,10 +275,7 @@ def view_article_logged_in(request, action_type, pk=None):
 
         article_data['article_feedback_sum'] = total_feedback
 
-        f_set = Feedback.objects.all()\
-            .filter(userfeedback__article=article)\
-            .annotate(f_count=Count('userfeedback'))\
-            .order_by('-f_count', 'name')[:3]
+        f_set = article.get_feedback_set()[:3]
 
         article_data['feedback_set'] = []
 

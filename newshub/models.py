@@ -1,5 +1,6 @@
 import re
 from django.db import models
+from django.db.models import Count
 from django.contrib.auth.models import User
 from django.core.validators import RegexValidator
 from redactor.fields import RedactorField
@@ -158,6 +159,7 @@ class Article(models.Model):
     top_stories_value = models.FloatField(default=15.0)
     url_text = models.CharField(
         max_length=60, unique=True, null=True, blank=True)
+    outside_view_count = models.IntegerField(default=0)
 
     def __unicode__(self):
         return self.title
@@ -174,6 +176,23 @@ class Article(models.Model):
     def save(self, *args, **kwargs):
         super(Article, self).save(*args, **kwargs)
         self.url_text = self.generate_url_text()
+
+    def get_distinct_view_count(self):
+        return ViewedArticles.objects.filter(article=self).count()
+
+    def get_total_view_count(self):
+        total_inside_views = sum([
+            x.number_of_views for x in ViewedArticles.objects.filter(
+                article=self)
+        ])
+
+        return total_inside_views + self.outside_view_count
+
+    def get_feedback_set(self):
+        return Feedback.objects.all()\
+            .filter(userfeedback__article=self)\
+            .annotate(f_count=Count('userfeedback'))\
+            .order_by('-f_count', 'name')
 
 
 class ViewedArticles(models.Model):
