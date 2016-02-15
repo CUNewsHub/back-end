@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.core.validators import RegexValidator
 from redactor.fields import RedactorField
 
+
 class College(models.Model):
     name = models.CharField(max_length=63)
 
@@ -56,6 +57,11 @@ class Profile(LandingPages):
     subject = models.ForeignKey(Subject, blank=True, null=True)
     year = models.CharField(choices=YEAR_CHOICES, blank=True, null=True,
                             max_length=10)
+
+    def save(self, *args, **kwargs):
+        super(Profile, self).save(*args, **kwargs)
+
+        EmailNotification.objects.get_or_create(profile=self)
 
 
 class Society(LandingPages):
@@ -194,6 +200,11 @@ class Article(models.Model):
             .annotate(f_count=Count('userfeedback'))\
             .order_by('-f_count', 'name')
 
+    def save(self, *args, **kwargs):
+        if self.author.article_set.filter(featured=True).count() < 3:
+            self.featured = True
+        super(Article, self).save(*args, **kwargs)
+
 
 class ViewedArticles(models.Model):
     user = models.ForeignKey(User)
@@ -247,3 +258,31 @@ class UserFeedback(models.Model):
 
     class Meta:
         unique_together = ('article', 'user')
+
+
+class NotificationMixin(models.Model):
+    weekly_newsletter = models.BooleanField(
+        default=True,
+        verbose_name='Receive a weekly newsletter about new articles')
+
+    article_liked = models.BooleanField(
+        default=False,
+        verbose_name='Receive a notification whenever your article is liked')
+
+    comment = models.BooleanField(
+        default=True,
+        verbose_name=('Receive a notification whenever your article has a' +
+                      'new comment, or your comment has a new reply.'))
+
+    followed_author_new_article = models.BooleanField(
+        default=True,
+        verbose_name=('Receive a notification when an author you followed ' +
+                      'has posted a new article'))
+
+    class Meta:
+        abstract = True
+
+
+class EmailNotification(NotificationMixin):
+    profile = models.OneToOneField(Profile, related_name='email_notifications',
+                                   unique=True)
