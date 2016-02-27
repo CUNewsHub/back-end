@@ -12,7 +12,7 @@ from django.db.models import Count
 from .forms import NewArticleForm, ProfileForm, CommentForm, PollForm
 from .forms import ChoiceForm, SocietyForm, SocietyDataForm, UpdateSocietyForm
 from .forms import LandingTagsForm, TagForm
-from .forms import ProfileCreationForm, EmailNotificationForm
+from .forms import ProfileCreationForm
 from .models import Article, Author, Follow, Endorsement, Profile, Poll, Tag
 from .models import ViewedArticles, Choice, Feedback, UserFeedback, Society
 from .models import Comment, Category
@@ -109,8 +109,8 @@ def profile(request, pk=None):
             profile_form = ProfileForm(
                 instance=request.user.profile,
                 initial={'email': user.email})
-            notification_form = EmailNotificationForm(
-                instance=request.user.profile.email_notifications)
+            # notification_form = EmailNotificationForm(
+            #    instance=request.user.profile.email_notifications)
         except Profile.DoesNotExist:
             try:
                 society = user.society
@@ -125,8 +125,8 @@ def profile(request, pk=None):
             profile_form = ProfileForm(
                 instance=user.profile,
                 initial={'email': user.email})
-            notification_form = EmailNotificationForm(
-                instance=request.user.profile.email_notifications)
+            # notification_form = EmailNotificationForm(
+            #    instance=request.user.profile.email_notifications)
         except Profile.DoesNotExist:
             try:
                 profile_form = UpdateSocietyForm(
@@ -957,16 +957,17 @@ def register(request):
 
 @login_required
 def update_notification_settings(request):
-    if request.method == 'POST':
-        form = EmailNotificationForm(
-            request.POST or None,
-            instance=request.user.profile.email_notifications)
-        if form.is_valid():
-            form.save()
-        else:
-            raise Http404
+    pass
+#     if request.method == 'POST':
+#         form = EmailNotificationForm(
+#             request.POST or None,
+#             instance=request.user.profile.email_notifications)
+#         if form.is_valid():
+#             form.save()
+#         else:
+#             raise Http404
 
-        return HttpResponseRedirect(
-            reverse('newshub:self_profile') + '#notification-settings')
-    else:
-        raise Http404
+#         return HttpResponseRedirect(
+#             reverse('newshub:self_profile') + '#notification-settings')
+#     else:
+#         raise Http404
