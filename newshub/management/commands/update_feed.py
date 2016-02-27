@@ -1,11 +1,11 @@
-# from ...models import Article
+"""Update feed."""
+
 import math
 import pytz
 import datetime
 from newshub.views import _get_redis_instance as gri
 from django.core.management.base import BaseCommand
 from newshub.models import Profile, Article
-from django.db.models import Q
 from newshub.feed import initialise_category_vector
 from newshub.feed import get_occurrence_category_vector
 from newshub import models
@@ -21,10 +21,18 @@ def _time_decay_function(seconds):
         return 0.16
 
 
+def _initial_boost(published_date):
+    delta = datetime.datetime.now(pytz.utc) - published_date
+    if delta.days <= 2:
+        return 400
+    elif delta.days <= 5:
+        return 200
+    else:
+        return 0
+
+
 def _calculate_article_value(article):
-    viewed_set = article.viewedarticles_set.filter(
-        ~Q(user=article.author.user))
-    views = sum([x.number_of_views for x in viewed_set])
+    views = article.get_total_view_count()
     likes = 20 * article.likes.count()
     comments = 30 * article.comment_set.count()
     society_factor = 1
@@ -39,7 +47,10 @@ def _calculate_article_value(article):
 
     z_value = article.z
 
-    value = (views + likes + comments) * society_factor * time_factor + z_value
+    initial_boost = _initial_boost(article.time_uploaded)
+
+    value = (views + likes + comments) * society_factor * time_factor +\
+        z_value + initial_boost
 
     return float(value)
 
@@ -94,8 +105,11 @@ def _update_feed():
 
 
 class Command(BaseCommand):
+    """Command class."""
+
     help = 'Updating top-stories feed, and storing it in Redis'
 
     def handle(self, *args, **options):
+        """Handle function."""
         _update_articles()
         _update_feed()
