@@ -23,7 +23,7 @@ from feed import get_personalised_feed
 from django.conf import settings
 from django.db.models import Q
 
-from .signals import new_article as new_article_signal
+# from .signals import new_article as new_article_signal
 
 
 def _get_redis_instance():
@@ -192,7 +192,7 @@ def new_article(request):
             elif request.POST['action'] == 'Publish':
                 article.published = True
                 article.save()
-                new_article_signal.send(sender=Article, article=article)
+                # new_article_signal.send(sender=Article, article=article)
                 return HttpResponseRedirect(
                     reverse('newshub:view_article',
                             args=('home', article.pk,)))
