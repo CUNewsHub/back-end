@@ -101,7 +101,7 @@ SOCIAL_AUTH_LOGIN_URL = '/'
 
 SOCIAL_AUTH_FACEBOOK_SCOPE = ['email']
 
-LOGIN_URL = '/'
+LOGIN_URL = '/login/'
 
 ROOT_URLCONF = 'src.urls'
 
