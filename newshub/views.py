@@ -12,7 +12,7 @@ from django.db.models import Count
 from .forms import NewArticleForm, ProfileForm, CommentForm, PollForm
 from .forms import ChoiceForm, SocietyForm, SocietyDataForm, UpdateSocietyForm
 from .forms import LandingTagsForm, TagForm
-from .forms import ProfileCreationForm
+from .forms import ProfileCreationForm, EmailNotificationForm
 from .models import Article, Author, Follow, Endorsement, Profile, Poll, Tag
 from .models import ViewedArticles, Choice, Feedback, UserFeedback, Society
 from .models import Comment, Category
@@ -22,6 +22,8 @@ from feed import initialise_category_vector, update_category_vector
 from feed import get_personalised_feed
 from django.conf import settings
 from django.db.models import Q
+
+from .signals import new_article as new_article_signal
 
 
 def _get_redis_instance():
@@ -45,15 +47,13 @@ def home(request):
                    'categories': Category.objects.all()})
 
 
-@login_required
-@landing_pages_seen
 def top_stories(request):
     articles = Article.objects.filter(published=True)\
                       .order_by('-top_stories_value')
 
     return render(request, 'newshub/index.html',
                   {'articles': articles, 'type': 'top-stories',
-                   'categories': Category.objects.all()})
+                   'categories': Category.objects.all(), 'show_menu': True})
 
 
 @login_required
@@ -95,6 +95,7 @@ def logout(request):
 @landing_pages_seen
 def profile(request, pk=None):
     profile_form = None
+    notification_form = None
     society = None
     if pk is None:
         user = request.user
@@ -108,6 +109,8 @@ def profile(request, pk=None):
             profile_form = ProfileForm(
                 instance=request.user.profile,
                 initial={'email': user.email})
+            notification_form = EmailNotificationForm(
+                instance=request.user.profile.email_notifications)
         except Profile.DoesNotExist:
             try:
                 society = user.society
@@ -122,6 +125,8 @@ def profile(request, pk=None):
             profile_form = ProfileForm(
                 instance=user.profile,
                 initial={'email': user.email})
+            notification_form = EmailNotificationForm(
+                instance=request.user.profile.email_notifications)
         except Profile.DoesNotExist:
             try:
                 profile_form = UpdateSocietyForm(
@@ -135,7 +140,8 @@ def profile(request, pk=None):
     return render(request, 'newshub/profile.html',
                   {'user': user, 'profile_form': profile_form,
                    'society': society,
-                   'featured_article_set': featured_article_set})
+                   'featured_article_set': featured_article_set,
+                   'notification_form': None})
 
 
 @login_required
@@ -186,6 +192,7 @@ def new_article(request):
             elif request.POST['action'] == 'Publish':
                 article.published = True
                 article.save()
+                new_article_signal.send(sender=Article, article=article)
                 return HttpResponseRedirect(
                     reverse('newshub:view_article',
                             args=('home', article.pk,)))
@@ -912,8 +919,6 @@ def society_change_password(request):
         raise Http404
 
 
-@login_required
-@landing_pages_seen
 def articles_by_category(request, category):
     category = get_object_or_404(Category, name=category)
 
@@ -925,7 +930,7 @@ def articles_by_category(request, category):
     return render(request, 'newshub/index.html',
                   {'articles': articles, 'type': category.name,
                    'category': category,
-                   'categories': Category.objects.all()})
+                   'categories': Category.objects.all(), 'show_menu': True})
 
 
 def register(request):
@@ -948,3 +953,20 @@ def register(request):
         request,
         'newshub/register.html',
         {'form': form})
+
+
+@login_required
+def update_notification_settings(request):
+    if request.method == 'POST':
+        form = EmailNotificationForm(
+            request.POST or None,
+            instance=request.user.profile.email_notifications)
+        if form.is_valid():
+            form.save()
+        else:
+            raise Http404
+
+        return HttpResponseRedirect(
+            reverse('newshub:self_profile') + '#notification-settings')
+    else:
+        raise Http404
