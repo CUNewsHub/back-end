@@ -6,6 +6,7 @@ urlpatterns = [
     url(r'^personal-feed/$', 'newshub.views.home', name='home'),
     url(r'^$', 'newshub.views.top_stories'),
     url(r'^top-stories/$', 'newshub.views.top_stories', name='top_stories'),
+    url(r'^$', 'newshub.views.top_stories'),
     url(r'^history/$', 'newshub.views.history', name='history'),
     url(r'^login/$', 'newshub.views.login', name='login'),
     url(r'^logout/$', 'newshub.views.logout', name='logout'),
