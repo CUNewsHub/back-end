@@ -61,8 +61,6 @@ def _update_articles():
         article.top_stories_value = article_value
         article.save()
 
-    print "Ran _update_articles() for top-stories"
-
 
 def _update_user_feed(redis, user):
     if redis is None:
