@@ -42,11 +42,17 @@ def _get_redis_instance():
 def home(request, template='newshub/index.html', extra_context=None):
     articles = get_personalised_feed(
         _get_redis_instance(), request.user, models)
-    return HttpResponse(template)
+    if request.is_ajax():
+        template = 'newshub/index_page.html'
+        page_template = None
+    else:
+        template = 'newshub/index.html'
+        page_template = 'newshub/index_page.html'
 
     return render(request, template,
                   {'articles': articles, 'type': 'home',
-                   'categories': Category.objects.all()})
+                   'categories': Category.objects.all(),
+                   'page_template': page_template})
 
 
 def top_stories(request, template='newshub/index.html', extra_context=None):
@@ -74,11 +80,17 @@ def history(request, template='newshub/index.html', extra_context=None):
         user=request.user).order_by('-last_viewed_time')
     articles = [x.article for x in viewed_set]
 
-    return HttpResponse(template)
+    if request.is_ajax():
+        template = 'newshub/index_page.html'
+        page_template = None
+    else:
+        template = 'newshub/index.html'
+        page_template = 'newshub/index_page.html'
 
     return render(request, template,
                   {'articles': articles, 'type': 'history',
-                   'categories': Category.objects.all()})
+                   'categories': Category.objects.all(),
+                   'page_template': page_template})
 
 
 def login(request):
