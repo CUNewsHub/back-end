@@ -8,7 +8,6 @@ from django.contrib.auth import logout as auth_logout, login as auth_login
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm, AuthenticationForm
 from django.contrib.auth.models import User
-from django.db.models import Count
 from .forms import NewArticleForm, ProfileForm, CommentForm, PollForm
 from .forms import ChoiceForm, SocietyForm, SocietyDataForm, UpdateSocietyForm
 from .forms import LandingTagsForm, TagForm
@@ -22,6 +21,7 @@ from feed import initialise_category_vector, update_category_vector
 from feed import get_personalised_feed
 from django.conf import settings
 from django.db.models import Q
+from endless_pagination.decorators import page_template
 
 # from .signals import new_article as new_article_signal
 
@@ -38,32 +38,45 @@ def _get_redis_instance():
 
 @login_required
 @landing_pages_seen
-def home(request):
+@page_template('newshub/index_page.html')
+def home(request, template='newshub/index.html', extra_context=None):
     articles = get_personalised_feed(
         _get_redis_instance(), request.user, models)
+    return HttpResponse(template)
 
-    return render(request, 'newshub/index.html',
+    return render(request, template,
                   {'articles': articles, 'type': 'home',
                    'categories': Category.objects.all()})
 
 
-def top_stories(request):
+def top_stories(request, template='newshub/index.html', extra_context=None):
     articles = Article.objects.filter(published=True)\
                       .order_by('-top_stories_value')
 
-    return render(request, 'newshub/index.html',
+    if request.is_ajax():
+        template = 'newshub/index_page.html'
+        page_template = None
+    else:
+        template = 'newshub/index.html'
+        page_template = 'newshub/index_page.html'
+
+    return render(request, template,
                   {'articles': articles, 'type': 'top-stories',
-                   'categories': Category.objects.all(), 'show_menu': True})
+                   'categories': Category.objects.all(), 'show_menu': True,
+                   'page_template': page_template})
 
 
 @login_required
 @landing_pages_seen
-def history(request):
+@page_template('newshub/index_page.html')
+def history(request, template='newshub/index.html', extra_context=None):
     viewed_set = ViewedArticles.objects.filter(
         user=request.user).order_by('-last_viewed_time')
     articles = [x.article for x in viewed_set]
 
-    return render(request, 'newshub/index.html',
+    return HttpResponse(template)
+
+    return render(request, template,
                   {'articles': articles, 'type': 'history',
                    'categories': Category.objects.all()})
 

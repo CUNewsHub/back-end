@@ -148,7 +148,7 @@ class Article(models.Model):
         redactor_options={'buttons': [
             'formatting', 'bold', 'italic', 'deleted',
             'list', 'link', 'horizontalrule', 'orderedlist',
-            'unorderedlist', 'image']},
+            'unorderedlist', 'image', 'fontsize']},
         allow_file_upload=True,
         allow_image_upload=True)
     published = models.BooleanField(default=False)
