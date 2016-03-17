@@ -718,7 +718,8 @@ def update_society(request, pk):
 
 @login_required
 @landing_pages_seen
-def articles_by_tags(request, tag_name):
+def articles_by_tags(request, tag_name,
+                     template='newshub/index.html', extra_context=None):
     articles = Article.objects.filter(published=True)
 
     tag = get_object_or_404(Tag, name=tag_name)
@@ -728,8 +729,17 @@ def articles_by_tags(request, tag_name):
 
     articles = articles.filter(tags=tag)
 
-    return render(request, 'newshub/index.html',
-                  {'articles': articles, 'type': 'home'})
+    if request.is_ajax():
+        template = 'newshub/index_page.html'
+        page_template = None
+    else:
+        template = 'newshub/index.html'
+        page_template = 'newshub/index_page.html'
+
+    return render(request, template,
+                  {'articles': articles, 'type': 'home',
+                   'page_template': page_template,
+                   'categories': Category.objects.all()})
 
 
 def _update_landing_pages_tags(user):
@@ -944,7 +954,8 @@ def society_change_password(request):
         raise Http404
 
 
-def articles_by_category(request, category):
+def articles_by_category(request, category,
+                         template='newshub/index.html', extra_context=None):
     category = get_object_or_404(Category, name=category)
 
     articles = Article.objects.filter(tags__category=category)\
@@ -952,10 +963,18 @@ def articles_by_category(request, category):
                               .order_by('-top_stories_value')\
                               .distinct()
 
-    return render(request, 'newshub/index.html',
+    if request.is_ajax():
+        template = 'newshub/index_page.html'
+        page_template = None
+    else:
+        template = 'newshub/index.html'
+        page_template = 'newshub/index_page.html'
+
+    return render(request, template,
                   {'articles': articles, 'type': category.name,
                    'category': category,
-                   'categories': Category.objects.all(), 'show_menu': True})
+                   'categories': Category.objects.all(), 'show_menu': True,
+                   'page_template': page_template})
 
 
 def register(request):
