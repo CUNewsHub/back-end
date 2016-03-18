@@ -1,3 +1,4 @@
+BeautifulSoup==3.2.1
 Django==1.8.5
 Django-Select2==5.6.0
 MySQL-python==1.2.5
@@ -5,15 +6,24 @@ Pillow==3.0.0
 PyJWT==1.4.0
 PyYAML==3.11
 argparse==1.2.1
+cssutils==1.0.1
+django-admin-tools==0.7.2
 django-appconf==1.0.1
-django-endless-pagination==2.0
 django-dbbackup==2.4.1
+django-endless-pagination==2.0
 django-fontawesome==0.2.4
+django-inlinecss==0.1.1
+django-mailer==1.1
+django-model-utils==2.4
 django-tinymce==2.0.5
 django-widget-tweaks==1.4.1
 django-wysiwyg-redactor==0.4.9
+funcsigs==0.4
+lockfile==0.12.2
+mock==1.3.0
 mysql==0.0.1
 oauthlib==1.0.3
+pbr==1.8.1
 python-openid==2.2.5
 python-social-auth==0.2.13
 pytz==2015.7
@@ -23,4 +33,3 @@ requests-oauthlib==0.5.0
 six==1.10.0
 sorl-thumbnail==12.3
 wsgiref==0.1.2
-django-mailer
