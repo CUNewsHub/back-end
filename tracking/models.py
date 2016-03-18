@@ -39,10 +39,45 @@ class PageVisitor(models.Model):
 
     logged_in_user = models.BooleanField()
     visited_time = models.DateTimeField(auto_now_add=True)
-    session_key = models.CharField(max_length=40, unique=True)
+    session_key = models.CharField(max_length=40)
     user = models.ForeignKey(User, blank=True, null=True)
 
     objects = InheritanceManager()
+
+    @staticmethod
+    def create_page_visitor(page_type, request, obj=None, **kwargs):
+        """Static method for creating PageVisitor classes."""
+        page_visitor = None
+        kwargs = kwargs
+
+        if request.user.is_authenticated():
+            kwargs['logged_in_user'] = True
+            kwargs['user'] = request.user
+        else:
+            kwargs['logged_in_user'] = False
+            kwargs['user'] = None
+
+        kwargs['session_key'] = request.session.session_key
+
+        if page_type == 'article':
+            page_visitor = ArticleVisitor
+        elif page_type == 'profile':
+            page_visitor = ProfileVisitor
+        elif page_type == 'society':
+            page_visitor = SocietyVisitor
+        elif page_type == 'category':
+            page_visitor = CategoryVisitor
+        elif page_type == 'newsfeed':
+            page_visitor = NewsFeedVisitor
+        elif page_type == 'login_page':
+            page_visitor = LoginPageVisitor
+        elif page_type == 'tag':
+            page_visitor = TagVisitor
+
+        if obj is not None:
+            page_visitor.objects.create(obj=obj, **kwargs)
+        else:
+            page_visitor.objects.create(**kwargs)
 
 
 class ArticleVisitor(PageVisitor):
