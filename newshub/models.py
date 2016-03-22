@@ -63,6 +63,9 @@ class Profile(LandingPages):
 
         EmailNotification.objects.get_or_create(profile=self)
 
+    def __unicode__(self):
+        return "%s %s" % (self.user.first_name, self.user.last_name)
+
 
 class Society(LandingPages):
     user = models.OneToOneField(User)
@@ -74,6 +77,10 @@ class Society(LandingPages):
             message='invalid facebook page')])
     website = models.URLField(blank=True, null=True)
     about = models.TextField(blank=True, null=True)
+
+
+    def __unicode__(self):
+        return "%s%s" % (self.user.first_name, self.user.last_name)
 
 
 class Author(models.Model):

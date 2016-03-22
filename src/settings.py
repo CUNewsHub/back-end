@@ -107,6 +107,8 @@ ROOT_URLCONF = 'src.urls'
 
 DBBACKUP_STORAGE = 'dbbackup.storage.filesystem_storage'
 
+CSV_ROOT = os.path.abspath(os.path.join(BASE_DIR, 'tracking', 'out'))
+
 if DEBUG:
     if secret_data.DEVELOPMENT:
         FRONTEND_BASE = os.path.abspath(os.path.join(

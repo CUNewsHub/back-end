@@ -41,6 +41,7 @@ class PageVisitor(models.Model):
     visited_time = models.DateTimeField(auto_now_add=True)
     session_key = models.CharField(max_length=40)
     user = models.ForeignKey(User, blank=True, null=True)
+    page_type = models.CharField(max_length=32)
 
     objects = InheritanceManager()
 
@@ -75,9 +76,9 @@ class PageVisitor(models.Model):
             page_visitor = TagVisitor
 
         if obj is not None:
-            page_visitor.objects.create(obj=obj, **kwargs)
+            page_visitor.objects.create(obj=obj, page_type=page_type, **kwargs)
         else:
-            page_visitor.objects.create(**kwargs)
+            page_visitor.objects.create(page_type=page_type, **kwargs)
 
 
 class ArticleVisitor(PageVisitor):
@@ -98,12 +99,13 @@ class SocietyVisitor(PageVisitor):
     obj = models.ForeignKey(Society)
 
 
+HISTORY = 'history'
+TOP_STORIES = 'top-stories'
+PERSONAL_FEED = 'personal-feed'
+
+
 class NewsFeedVisitor(PageVisitor):
     """Docstring for NewsFeedVisitor."""
-
-    HISTORY = 'history'
-    TOP_STORIES = 'top-stories'
-    PERSONAL_FEED = 'personal-feed'
 
     NEWSFEED_CHOICES = [
         (HISTORY, HISTORY),
@@ -130,3 +132,31 @@ class LoginPageVisitor(PageVisitor):
     """LoginPageVisitor class."""
 
     pass
+
+
+class SingletonModel(models.Model):
+    """SingletonModel class."""
+
+    class Meta:
+        """Make sure this class is abstract."""
+
+        abstract = True
+
+    def save(self, *args, **kwargs):
+        """Overwrite the save method."""
+        self.__class__.objects.exclude(id=self.id).delete()
+        super(SingletonModel, self).save(*args, **kwargs)
+
+    @classmethod
+    def load(cls):
+        """Load the signle instance, or create new one."""
+        try:
+            return cls.objects.get()
+        except cls.DoesNotExist:
+            return cls()
+
+
+class TrackingMetadata(SingletonModel):
+    """Metadata of the tracking aplication."""
+
+    last_dumped_flow_graph = models.DateTimeField(blank=True, null=True)
