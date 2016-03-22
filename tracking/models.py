@@ -72,6 +72,7 @@ class PageVisitor(models.Model):
             page_visitor = NewsFeedVisitor
         elif page_type == 'login_page':
             page_visitor = LoginPageVisitor
+            kwargs['next_url'] = request.GET.get('next', None)
         elif page_type == 'tag':
             page_visitor = TagVisitor
 
@@ -131,7 +132,7 @@ class TagVisitor(PageVisitor):
 class LoginPageVisitor(PageVisitor):
     """LoginPageVisitor class."""
 
-    pass
+    next_url = models.CharField(max_length=255, blank=True, null=True)
 
 
 class SingletonModel(models.Model):

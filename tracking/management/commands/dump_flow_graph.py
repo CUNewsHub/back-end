@@ -27,8 +27,8 @@ class Command(BaseCommand):
                                   .filter(visited_time__gte=from_time)
 
         now = datetime.datetime.now()
-        filename = "%s_%s_%s_%s_%s.csv" % (
-            now.year, now.month, now.day, now.minute, now.second)
+        filename = "%s_%s_%s_%s_%s_%s.csv" % (
+            now.year, now.month, now.day, now.hour, now.minute, now.second)
 
         file_pwd = os.path.join(CSV_ROOT, 'flow-graph-dump', filename)
 
@@ -36,6 +36,7 @@ class Command(BaseCommand):
             fieldnames = ['session_key', 'user_id', 'visited_time',
                           'page_type', 'page_id', 'page_verbose_name']
             csv_writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
+            csv_writer.writeheader()
             for visitor in visitors:
                 row = {}
                 row['session_key'] = visitor.session_key
@@ -59,7 +60,7 @@ class Command(BaseCommand):
                 elif isinstance(visitor, LoginPageVisitor):
                     row['page_type'] = visitor.page_type
                     row['page_id'] = None
-                    row['page_verbose_name'] = None
+                    row['page_verbose_name'] = visitor.next_url
                 else:
                     row['page_type'] = visitor.page_type
                     row['page_id'] = visitor.obj.id
