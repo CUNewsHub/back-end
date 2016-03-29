@@ -5,6 +5,8 @@ from django_select2.forms import ModelSelect2TagWidget, Select2MultipleWidget
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import AuthenticationForm
+from form_utils.widgets import ImageWidget
+from form_utils.fields import ClearableFileField
 
 
 class TitleSearchFieldMixin(object):
@@ -56,6 +58,14 @@ class ProfileForm(forms.ModelForm):
         help_texts = {
             'display_name': 'This name will be displayed as your' +
                             ' name everywhere on the website'
+        }
+
+        labels = {
+            'picture': 'Upload new picture'
+        }
+
+        widgets = {
+            'picture': ImageWidget(template='%(input)s')
         }
 
 
