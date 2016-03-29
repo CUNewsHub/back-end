@@ -22,6 +22,7 @@ from feed import get_personalised_feed
 from django.conf import settings
 from django.db.models import Q
 from endless_pagination.decorators import page_template
+from tracking.models import PageVisitor
 
 # from .signals import new_article as new_article_signal
 
@@ -48,6 +49,8 @@ def home(request, template='newshub/index.html', extra_context=None):
     else:
         template = 'newshub/index.html'
         page_template = 'newshub/index_page.html'
+        PageVisitor.create_page_visitor(
+            'newsfeed', request, newsfeed_type='personal-feed')
 
     return render(request, template,
                   {'articles': articles, 'type': 'home',
@@ -65,6 +68,8 @@ def top_stories(request, template='newshub/index.html', extra_context=None):
     else:
         template = 'newshub/index.html'
         page_template = 'newshub/index_page.html'
+        PageVisitor.create_page_visitor(
+            'newsfeed', request, newsfeed_type='top-stories ')
 
     return render(request, template,
                   {'articles': articles, 'type': 'top-stories',
@@ -86,6 +91,8 @@ def history(request, template='newshub/index.html', extra_context=None):
     else:
         template = 'newshub/index.html'
         page_template = 'newshub/index_page.html'
+        PageVisitor.create_page_visitor(
+            'newsfeed', request, newsfeed_type='history')
 
     return render(request, template,
                   {'articles': articles, 'type': 'history',
@@ -104,7 +111,7 @@ def login(request):
                 return HttpResponseRedirect(next_)
         else:
             form = AuthenticationForm()
-
+            PageVisitor.create_page_visitor('login_page', request)
         return render(request, 'newshub/login.html',
                       {'form': form})
     else:
@@ -120,7 +127,7 @@ def logout(request):
 @landing_pages_seen
 def profile(request, pk=None):
     profile_form = None
-    notification_form = None
+    # notification_form = None
     society = None
     if pk is None:
         user = request.user
@@ -134,8 +141,8 @@ def profile(request, pk=None):
             profile_form = ProfileForm(
                 instance=request.user.profile,
                 initial={'email': user.email})
-            # notification_form = EmailNotificationForm(
-            #    instance=request.user.profile.email_notifications)
+            PageVisitor.create_page_visitor(
+                'profile', request, obj=request.user.profile)
         except Profile.DoesNotExist:
             try:
                 society = user.society
@@ -143,6 +150,8 @@ def profile(request, pk=None):
                     instance=user.society,
                     initial={'email': user.email,
                              'socname': user.first_name})
+                PageVisitor.create_page_visitor(
+                    'society', request, obj=society)
             except Society.DoesNotExist:
                 raise Http404
     else:
@@ -150,6 +159,8 @@ def profile(request, pk=None):
             profile_form = ProfileForm(
                 instance=user.profile,
                 initial={'email': user.email})
+            PageVisitor.create_page_visitor(
+                'profile', request, obj=user.profile)
             # notification_form = EmailNotificationForm(
             #    instance=request.user.profile.email_notifications)
         except Profile.DoesNotExist:
@@ -159,6 +170,8 @@ def profile(request, pk=None):
                     initial={'email': user.email,
                              'socname': user.first_name})
                 society = user.society
+                PageVisitor.create_page_visitor(
+                    'society', request, obj=society)
             except Society.DoesNotExist:
                 raise Http404
 
@@ -257,6 +270,9 @@ def view_article_outside(request, pk):
     article.outside_view_count += 1
     article.save()
 
+    PageVisitor.create_page_visitor(
+        'article', request, obj=article)
+
     return render(request, 'newshub/article/view.html',
                   {'article': article, 'action_type': 'pre_view',
                    'feedback_set': Feedback.objects.all(),
@@ -319,6 +335,9 @@ def view_article_logged_in(request, action_type, pk=None):
                 'obj': feedback,
                 'percentage': percentage
             })
+
+        PageVisitor.create_page_visitor(
+            'article', request, obj=article)
 
         comment_form = CommentForm(initial={'article': article})
 
@@ -735,6 +754,8 @@ def articles_by_tags(request, tag_name,
     else:
         template = 'newshub/index.html'
         page_template = 'newshub/index_page.html'
+        PageVisitor.create_page_visitor(
+            'tag', request, obj=tag)
 
     return render(request, template,
                   {'articles': articles, 'type': 'home',
@@ -969,6 +990,8 @@ def articles_by_category(request, category,
     else:
         template = 'newshub/index.html'
         page_template = 'newshub/index_page.html'
+        PageVisitor.create_page_visitor(
+            'category', request, obj=category)
 
     return render(request, template,
                   {'articles': articles, 'type': category.name,
