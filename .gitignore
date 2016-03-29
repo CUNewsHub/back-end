@@ -3,3 +3,4 @@
 src/secret_data.py
 *~
 dbbackup
+/tracking/out/
