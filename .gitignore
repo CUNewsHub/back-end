@@ -3,3 +3,8 @@
 src/secret_data.py
 *~
 dbbackup
+<<<<<<< HEAD
+/tracking/out/
+=======
+*csv
+>>>>>>> bc28d921531e49fe438bcf0489f152421704d462
