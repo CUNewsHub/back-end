@@ -78,7 +78,6 @@ class Society(LandingPages):
     website = models.URLField(blank=True, null=True)
     about = models.TextField(blank=True, null=True)
 
-
     def __unicode__(self):
         return "%s%s" % (self.user.first_name, self.user.last_name)
 
@@ -183,6 +182,10 @@ class Article(models.Model):
         url_text = re.sub(r'[\ ]+', ' ', url_text)
         url_text = re.sub(r'[^0-9a-z\ ]+', '', url_text)
         url_text = url_text.replace(' ', '-')
+
+        number = Article.objects.filter(url_text__startswith=url_text).count()
+
+        url_text += str(number)
 
         return url_text
 
