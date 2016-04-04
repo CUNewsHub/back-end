@@ -48,7 +48,9 @@ class Profile(LandingPages):
     )
 
     user = models.OneToOneField(User)
-    picture = models.ImageField(upload_to='profile_pictures/%Y/%m/%d')
+    picture = models.ImageField(
+        default="profile_pictures/defaultpp.png",
+        upload_to='profile_pictures/%Y/%m/%d')
     about = models.TextField(blank=True, null=True)
     crsid = models.CharField(blank=True, null=True, max_length=7)
     crsid_is_verified = models.BooleanField(default=False)
@@ -156,9 +158,11 @@ class Article(models.Model):
             'list', 'link', 'horizontalrule', 'orderedlist',
             'unorderedlist', 'image', 'fontsize']},
         allow_file_upload=True,
-        allow_image_upload=True)
+        allow_image_upload=True,
+        blank=True,
+        null=True)
     published = models.BooleanField(default=False)
-    tags = models.ManyToManyField(Tag)
+    tags = models.ManyToManyField(Tag, blank=True)
     time_uploaded = models.DateTimeField(auto_now_add=True)
     time_changed = models.DateTimeField(auto_now=True)
     likes = models.ManyToManyField(

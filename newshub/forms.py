@@ -41,6 +41,9 @@ class NewArticleForm(forms.ModelForm):
         }
 
         help_texts = {
+            'header_picture': (
+                "Including a header picture makes more" +
+                "people view it when you share it on Facebook."),
             'title': 'Maxmimum 60 characters',
             'headline': 'Maximum 360 characters'
         }
