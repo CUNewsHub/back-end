@@ -11,7 +11,8 @@ urlpatterns = [
     url(r'^login/$', 'newshub.views.login', name='login'),
     url(r'^logout/$', 'newshub.views.logout', name='logout'),
     url(r'^profile/$', 'newshub.views.profile', name='self_profile'),
-    url(r'^profile/(?P<pk>[0-9]+)/$', 'newshub.views.profile', name='profile'),
+    url(r'^profile/(?P<pk>[0-9]+)/$',
+        'newshub.views.view_profile', name='profile'),
     url(
         (r'view/article/(?P<action_type>[\w\W]+)' +
          '/(?P<pk>[0-9a-z\-]+)/$'),

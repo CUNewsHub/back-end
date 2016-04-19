@@ -102,6 +102,7 @@ def history(request, template='newshub/index.html', extra_context=None):
 
 def login(request):
     if not request.user.is_authenticated():
+        reg_form = ProfileCreationForm()
         if request.method == 'POST':
             form = AuthenticationForm(None, request.POST or None)
             next_ = request.GET.get('next', reverse('newshub:home'))
@@ -113,7 +114,7 @@ def login(request):
             form = AuthenticationForm()
             PageVisitor.create_page_visitor('login_page', request)
         return render(request, 'newshub/login.html',
-                      {'form': form})
+                      {'form': form, 'reg_form': reg_form})
     else:
         return home(request)
 
@@ -124,8 +125,11 @@ def logout(request):
 
 
 @login_required
-@landing_pages_seen
-def profile(request, pk=None):
+def profile(request):
+    return view_profile(request, request.user.pk)
+
+
+def view_profile(request, pk):
     profile_form = None
     # notification_form = None
     society = None
@@ -396,6 +400,29 @@ def edit_article(request, pk=None):
         return HttpResponseRedirect(
             reverse('newshub:edit_article', args=(pk,)))
 
+    article_data = {}
+    article_data['article_view_count'] = sum(
+        [x.number_of_views for x in ViewedArticles.objects.filter(
+            article=article)])
+
+    total_feedback = sum(
+        [x.feedback.count() for x in article.user_feedback.all()])
+
+    article_data['article_feedback_sum'] = total_feedback
+
+    f_set = article.get_feedback_set()[:3]
+
+    article_data['feedback_set'] = []
+
+    for feedback in f_set:
+        percentage = 100.0 * (
+            float(feedback.f_count) / float(total_feedback))
+        percentage = int(percentage)
+        article_data['feedback_set'].append({
+            'obj': feedback,
+            'percentage': percentage
+        })
+
     else:
         return render(
             request,
@@ -403,6 +430,7 @@ def edit_article(request, pk=None):
             {'form': form,
              'poll_form': PollForm(initial={'article': article}),
              'tag_form': TagForm(),
+             'article_data': article_data,
              'add': False})
 
 
