@@ -15,16 +15,32 @@ class Command(BaseCommand):
 
     help = 'Updates the Colleges and Subjects objects'
 
+    def valid_date(self, s):
+        try:
+            return datetime.datetime.strptime(s, "%Y-%m-%d")
+        except ValueError:
+            raise Exception
+
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '--from_date', required=False, type=self.valid_date, default=False,
+            dest='from_date')
+
     def handle(self, *args, **options):
         """Handle the command itself."""
         tracking_metadata = TrackingMetadata.load()
 
-        if tracking_metadata.last_dumped_flow_graph is None:
-            visitors = PageVisitor.objects.select_subclasses()
-        else:
-            from_time = tracking_metadata.last_dumped_flow_graph
+        if options['from_date']:
+            from_time = options['from_date']
             visitors = PageVisitor.objects.select_subclasses()\
                                   .filter(visited_time__gte=from_time)
+        else:
+            if tracking_metadata.last_dumped_flow_graph is None:
+                visitors = PageVisitor.objects.select_subclasses()
+            else:
+                from_time = tracking_metadata.last_dumped_flow_graph
+                visitors = PageVisitor.objects.select_subclasses()\
+                                      .filter(visited_time__gte=from_time)
 
         now = datetime.datetime.now()
         filename = "%s_%s_%s_%s_%s_%s.csv" % (
@@ -68,5 +84,6 @@ class Command(BaseCommand):
 
                 csv_writer.writerow(row)
 
-            tracking_metadata.last_dumped_flow_graph = now
-            tracking_metadata.save()
+            if not options['from_date']:
+                tracking_metadata.last_dumped_flow_graph = now
+                tracking_metadata.save()
