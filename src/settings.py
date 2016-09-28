@@ -155,10 +155,12 @@ else:
 
     STATIC_ROOT = os.path.abspath(os.path.join(FRONTEND_BASE, 'static'))
 
+    DBBACKUP_STORAGE_OPTIONS = secret_data.DBBACKUP_STORAGE_OPTIONS
+
 
 try:
     ALLOWED_HOSTS = secret_data.ALLOWED_HOSTS
-except NameError:
+except AttributeError:
     pass
 
 
