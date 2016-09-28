@@ -110,43 +110,56 @@ DBBACKUP_STORAGE = 'dbbackup.storage.filesystem_storage'
 CSV_ROOT = os.path.abspath(os.path.join(BASE_DIR, 'tracking', 'out'))
 
 if DEBUG:
-    if secret_data.DEVELOPMENT:
-        FRONTEND_BASE = os.path.abspath(os.path.join(
-            BASE_DIR, '..', 'front-end'))
+    FRONTEND_BASE = os.path.abspath(os.path.join(
+        BASE_DIR, '..', 'front-end'))
 
-        STATICFILES_DIRS = (
-            os.path.abspath(os.path.join(FRONTEND_BASE, 'static')),
-        )
+    STATICFILES_DIRS = (
+        os.path.abspath(os.path.join(FRONTEND_BASE, 'static')),
+    )
 
-        DBBACKUP_STORAGE_OPTIONS = {
-            'location': os.path.join(BASE_DIR, 'dbbackup')}
-
-        STATIC_URL = '/static/'
-        MEDIA_URL = '/media/'
-        STATIC_ROOT = os.path.abspath(os.path.join(
-            FRONTEND_BASE, 'static-only'))
-        MEDIA_ROOT = os.path.abspath(os.path.join(FRONTEND_BASE, 'media'))
-
-    else:
-        FRONTEND_BASE = '/home/newshub/webapps/staging_newshub_static/current'
-
-        STATIC_URL = '/static/current/static/'
-        MEDIA_URL = '/static/current/media/'
-        MEDIA_ROOT = ('/home/newshub/webapps/staging_newshub_static/' +
-                      'shared/media')
-        STATIC_ROOT = os.path.abspath(os.path.join(FRONTEND_BASE, 'static'))
-        DBBACKUP_STORAGE_OPTIONS = {
-            'location': '/home/newshub/webapps/newshub_staging/dbbackup'}
-else:
-    ALLOWED_HOSTS = ['camnewshub.com', 'www.camnewshub.com']
-    FRONTEND_BASE = '/home/newshub/webapps/newshub_static/current'
-
-    STATIC_URL = '/static/current/static/'
-    MEDIA_URL = '/static/current/media/'
-    MEDIA_ROOT = '/home/newshub/webapps/newshub_static/shared/media'
-    STATIC_ROOT = os.path.abspath(os.path.join(FRONTEND_BASE, 'static'))
     DBBACKUP_STORAGE_OPTIONS = {
-        'location': '/home/newshub/webapps/newshub/dbbackup'}
+        'location': os.path.join(BASE_DIR, 'dbbackup')}
+
+    STATIC_URL = '/static/'
+    MEDIA_URL = '/media/'
+    STATIC_ROOT = os.path.abspath(os.path.join(
+        FRONTEND_BASE, 'static-only'))
+    MEDIA_ROOT = os.path.abspath(os.path.join(FRONTEND_BASE, 'media'))
+
+    # FRONTEND_BASE = '/home/newshub/webapps/staging_newshub_static/current'
+    #
+    # STATIC_URL = '/static/current/static/'
+    # MEDIA_URL = '/static/current/media/'
+    # MEDIA_ROOT = ('/home/newshub/webapps/staging_newshub_static/' +
+    #               'shared/media')
+    # STATIC_ROOT = os.path.abspath(os.path.join(FRONTEND_BASE, 'static'))
+    # DBBACKUP_STORAGE_OPTIONS = {
+    #     'location': '/home/newshub/webapps/newshub_staging/dbbackup'}
+else:
+    # ALLOWED_HOSTS = ['camnewshub.com', 'www.camnewshub.com']
+    # FRONTEND_BASE = '/home/newshub/webapps/newshub_static/current'
+    #
+    # STATIC_URL = '/static/current/static/'
+    # MEDIA_URL = '/static/current/media/'
+    # MEDIA_ROOT = '/home/newshub/webapps/newshub_static/shared/media'
+    # STATIC_ROOT = os.path.abspath(os.path.join(FRONTEND_BASE, 'static'))
+    # DBBACKUP_STORAGE_OPTIONS = {
+    #     'location': '/home/newshub/webapps/newshub/dbbackup'}
+
+    FRONTEND_BASE = secret_data.FRONTEND_BASE
+
+    STATIC_URL = secret_data.STATIC_URL
+    MEDIA_URL = secret_data.MEDIA_URL
+
+    MEDIA_ROOT = secret_data.MEDIA_ROOT
+
+    STATIC_ROOT = os.path.abspath(os.path.join(FRONTEND_BASE, 'static'))
+
+
+try:
+    ALLOWED_HOSTS = secret_data.ALLOWED_HOSTS
+except NameError:
+    pass
 
 
 # TINYMCE CONFIG
